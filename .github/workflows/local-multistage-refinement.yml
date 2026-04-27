@@ -1,0 +1,651 @@
+name: local-multistage-refinement
+
+on:
+  push:
+    paths:
+      - rfp-markdown/**/*.md
+      - '!rfp-markdown/generated/**/*.md'
+      - '!rfp-markdown/audit/**'
+      - prompts/**
+      - src/**
+      - .github/workflows/local-multistage-refinement.yml
+  workflow_run:
+    workflows:
+      - convert-rfp-pdf-to-markdown
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      file_path:
+        description: Optional markdown path to process
+        required: false
+        type: string
+      uploads_glob:
+        description: Optional additional markdown glob for manual runs
+        required: false
+        type: string
+
+permissions:
+  contents: write
+  models: read
+
+jobs:
+  refine:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    env:
+      ENABLE_GITHUB_MODELS_CLAUDE: "true"
+      GITHUB_MODELS_CLAUDE_MODEL: anthropic/claude-sonnet-4.5
+      GITHUB_MODELS_ENDPOINT: https://models.github.ai/inference/chat/completions
+      MAX_REFINEMENT_RETRIES: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Ensure output directories
+        run: |
+          set -euo pipefail
+          mkdir -p rfp-markdown/generated
+          mkdir -p rfp-markdown/audit
+          mkdir -p .tmp
+
+      - name: Resolve targets
+        id: prep
+        run: |
+          set -euo pipefail
+          : > .tmp/targets.txt
+
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ -n "${{ inputs.file_path }}" ]]; then
+              echo "${{ inputs.file_path }}" >> .tmp/targets.txt
+            elif [[ -n "${{ inputs.uploads_glob }}" ]]; then
+              compgen -G "${{ inputs.uploads_glob }}" >> .tmp/targets.txt || true
+            else
+              echo "workflow_dispatch called without file_path or uploads_glob; no targets selected." >&2
+            fi
+          elif [[ "${{ github.event_name }}" == "push" ]]; then
+            # On push, process only source markdown files changed in the triggering push.
+            before="${{ github.event.before }}"
+            after="${{ github.sha }}"
+
+            if [[ "$before" =~ ^0+$ ]]; then
+              git show --pretty='' --name-status "$after" > .tmp/diff.txt || true
+            else
+              git diff --name-status "$before" "$after" > .tmp/diff.txt || true
+            fi
+
+            while IFS=$'\t' read -r status path target_path; do
+              [[ -z "${status:-}" ]] && continue
+              [[ "$status" == D ]] && continue
+
+              if [[ "$status" == R* ]]; then
+                path="$target_path"
+              fi
+
+              if [[ "$path" =~ ^rfp-markdown/.+\.md$ ]] && \
+                 [[ ! "$path" =~ ^rfp-markdown/generated/ ]] && \
+                 [[ ! "$path" =~ ^rfp-markdown/audit/ ]]; then
+                echo "$path"
+              fi
+            done < .tmp/diff.txt | sort -u >> .tmp/targets.txt || true
+          elif [[ "${{ github.event_name }}" == "workflow_run" ]]; then
+            # For chained runs, compare the original trigger SHA to current HEAD.
+            # The conversion workflow may create a follow-up commit with markdown updates.
+            head_sha="${{ github.event.workflow_run.head_sha }}"
+            if [[ -n "$head_sha" ]]; then
+              git diff --name-status "$head_sha" HEAD > .tmp/diff.txt || true
+            else
+              git show --pretty='' --name-status HEAD > .tmp/diff.txt || true
+            fi
+
+            while IFS=$'\t' read -r status path target_path; do
+              [[ -z "${status:-}" ]] && continue
+              [[ "$status" == D ]] && continue
+
+              if [[ "$status" == R* ]]; then
+                path="$target_path"
+              fi
+
+              if [[ "$path" =~ ^rfp-markdown/.+\.md$ ]] && \
+                 [[ ! "$path" =~ ^rfp-markdown/generated/ ]] && \
+                 [[ ! "$path" =~ ^rfp-markdown/audit/ ]]; then
+                echo "$path"
+              fi
+            done < .tmp/diff.txt | sort -u >> .tmp/targets.txt || true
+          fi
+
+          sort -u .tmp/targets.txt -o .tmp/targets.txt || true
+          grep -E '^rfp-markdown/.+\.md$' .tmp/targets.txt > .tmp/targets.filtered.txt || true
+          mv .tmp/targets.filtered.txt .tmp/targets.txt || true
+
+          run_dir="rfp-markdown/audit/${{ github.run_id }}-${{ github.run_attempt }}"
+          mkdir -p "$run_dir"
+          echo "run_dir=$run_dir" >> "$GITHUB_OUTPUT"
+
+          target_count="$(wc -l < .tmp/targets.txt | tr -d ' ')"
+          echo "target_count=$target_count" >> "$GITHUB_OUTPUT"
+
+          context_file="$run_dir/knowledge-context.md"
+          : > "$context_file"
+          if [[ -d knowledge/rfp ]]; then
+            echo "# knowledge/rfp" >> "$context_file"
+            while IFS= read -r f; do
+              echo "" >> "$context_file"
+              echo "## $f" >> "$context_file"
+              cat "$f" >> "$context_file"
+            done < <(find knowledge/rfp -type f -name '*.md' | sort)
+          fi
+          if [[ -d knowledge/formatting ]]; then
+            echo "" >> "$context_file"
+            echo "# knowledge/formatting" >> "$context_file"
+            while IFS= read -r f; do
+              echo "" >> "$context_file"
+              echo "## $f" >> "$context_file"
+              cat "$f" >> "$context_file"
+            done < <(find knowledge/formatting -type f -name '*.md' | sort)
+          fi
+
+          # Assets are preprocessed in a dedicated cache step and appended to this context file.
+
+      - name: Install Python dependencies for markdown analysis
+        if: steps.prep.outputs.target_count != '0'
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements.txt
+          python -m pip install -e .
+
+      - name: Cache assets references for analysis context
+        if: steps.prep.outputs.target_count != '0'
+        run: |
+          set -euo pipefail
+          RUN_DIR="${{ steps.prep.outputs.run_dir }}"
+          CONTEXT_FILE="$RUN_DIR/knowledge-context.md"
+          CACHE_DIR="$RUN_DIR/assets-cache"
+          INDEX_FILE="$CACHE_DIR/assets-index.md"
+          WARNINGS_FILE="$CACHE_DIR/assets-warnings.md"
+
+          mkdir -p "$CACHE_DIR"
+          : > "$INDEX_FILE"
+          : > "$WARNINGS_FILE"
+
+          if [[ ! -d assets ]]; then
+            exit 0
+          fi
+
+          RUN_DIR="$RUN_DIR" CACHE_DIR="$CACHE_DIR" INDEX_FILE="$INDEX_FILE" WARNINGS_FILE="$WARNINGS_FILE" python - <<'PY'
+          import os
+          from pathlib import Path
+
+          from pdf_multi_agent_analysis.assets_context import write_assets_cache
+
+          run_dir = Path(os.environ["RUN_DIR"])
+          cache_dir = Path(os.environ["CACHE_DIR"])
+          index_file = Path(os.environ["INDEX_FILE"])
+          warnings_file = Path(os.environ["WARNINGS_FILE"])
+
+          entries, warnings = write_assets_cache(
+            assets_dir=Path("assets"),
+            cache_dir=cache_dir,
+            max_chars_per_file=4000,
+            pdf_ocr_fallback=True,
+            pdf_ocr_max_pages=6,
+            pdf_min_text_chars=100,
+            pdf_max_single_char_token_ratio=0.40,
+          )
+
+          index_lines = ["# assets cache"]
+          for source, cached_name in entries:
+            index_lines.append(f"- {source} -> {cached_name}")
+          index_file.write_text("\n".join(index_lines).strip() + "\n", encoding="utf-8")
+
+          if warnings:
+            warning_lines = [f"- WARNING: {warning}" for warning in warnings]
+            warnings_file.write_text("\n".join(warning_lines).strip() + "\n", encoding="utf-8")
+            for warning in warnings:
+              print(f"WARNING: {warning}")
+          else:
+            warnings_file.write_text("", encoding="utf-8")
+          PY
+
+          {
+            echo ""
+            echo "# assets"
+            echo ""
+            cat "$INDEX_FILE"
+            echo ""
+          } >> "$CONTEXT_FILE"
+
+          if [[ -s "$WARNINGS_FILE" ]]; then
+            {
+              echo "## asset extraction warnings"
+              cat "$WARNINGS_FILE"
+              echo ""
+            } >> "$CONTEXT_FILE"
+          fi
+
+          while IFS= read -r cached; do
+            echo "" >> "$CONTEXT_FILE"
+            echo "## cached: ${cached#${RUN_DIR}/}" >> "$CONTEXT_FILE"
+            cat "$cached" >> "$CONTEXT_FILE"
+          done < <(find "$CACHE_DIR" -type f -name '*.txt' | sort)
+
+      - name: Run critique, refine, formatting, and Claude cleanup stages
+        if: steps.prep.outputs.target_count != '0'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+
+          RUN_DIR="${{ steps.prep.outputs.run_dir }}"
+          CONTEXT_FILE="$RUN_DIR/knowledge-context.md"
+          LAST_SUCCESS="$CONTEXT_FILE"
+          echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+
+          transform_stage_a() {
+            local in_file="$1"
+            local out_file="$2"
+            {
+              echo "## Stage A Critique"
+              echo ""
+              echo "- Local deterministic review"
+              echo "- Flags TODO/TBD/FIXME markers"
+              echo ""
+              awk '{
+                if ($0 ~ /(TODO|TBD|FIXME)/) {
+                  print "[FLAG] " $0
+                } else {
+                  print $0
+                }
+              }' "$in_file"
+              echo ""
+              echo "### Stage A Notes"
+              echo "- Lines: $(wc -l < "$in_file" | tr -d ' ')"
+              echo "- Flags: $(grep -Eic 'TODO|TBD|FIXME' "$in_file" || true)"
+            } > "$out_file"
+          }
+
+          transform_stage_b() {
+            local in_file="$1"
+            local out_file="$2"
+            {
+              echo "## Stage B Executive Refinement"
+              echo ""
+              echo "### Executive Summary"
+              awk 'NF > 0 { print "- " $0; c += 1; if (c >= 8) exit }' "$in_file"
+              echo ""
+              echo "### Refined Body"
+              awk '{
+                line=$0
+                gsub(/^\[FLAG\][[:space:]]*/, "", line)
+                print line
+              }' "$in_file"
+            } > "$out_file"
+          }
+
+          transform_stage_c() {
+            local in_file="$1"
+            local out_file="$2"
+            {
+              echo "## Stage C Final Markdown"
+              echo ""
+              awk '{
+                line=$0
+                gsub(/[ \t]+$/, "", line)
+                print line
+              }' "$in_file" | awk 'BEGIN{blank=0} {
+                if ($0 == "") {
+                  if (blank == 0) {
+                    print ""
+                  }
+                  blank = 1
+                } else {
+                  print $0
+                  blank = 0
+                }
+              }'
+            } > "$out_file"
+          }
+
+          transform_stage_d_claude() {
+            local in_file="$1"
+            local out_file="$2"
+            local request_file="$3"
+            local raw_response_file="$4"
+            local status_file="$5"
+            local incomprehensible_marker="[[INCOMPREHENSIBLE_SOURCE]]"
+
+            cp "$in_file" "$out_file"
+
+            if [[ "${ENABLE_GITHUB_MODELS_CLAUDE:-true}" != "true" ]]; then
+              printf '{"mode":"skipped","reason":"disabled via ENABLE_GITHUB_MODELS_CLAUDE"}\n' > "$request_file"
+              printf '{"message":"stage D skipped; using stage C output"}\n' > "$raw_response_file"
+              echo "skipped:disabled" > "$status_file"
+              return 0
+            fi
+
+            if [[ -z "${GITHUB_TOKEN:-}" ]]; then
+              printf '{"mode":"skipped","reason":"GITHUB_TOKEN unavailable"}\n' > "$request_file"
+              printf '{"message":"stage D skipped; using stage C output"}\n' > "$raw_response_file"
+              echo "skipped:no-token" > "$status_file"
+              return 0
+            fi
+
+            local prompt_file="prompts/claude-cleanup.md"
+            local system_prompt
+            if [[ -f "$prompt_file" ]]; then
+              system_prompt="$(cat "$prompt_file")"
+            else
+              system_prompt="You are a legal-markdown cleanup editor. Repair line-wrap artifacts and sentence breaks, preserve meaning, preserve markdown structure, and do not add new legal obligations."
+            fi
+
+            local model endpoint
+            model="${GITHUB_MODELS_CLAUDE_MODEL:-anthropic/claude-sonnet-4.5}"
+            endpoint="${GITHUB_MODELS_ENDPOINT:-https://models.github.ai/inference/chat/completions}"
+
+            local user_payload
+            user_payload="Clean and normalize this markdown. Fix mid-sentence breaks and hard wraps. Preserve headings, lists, and legal intent exactly. Return markdown only. If the source is too corrupted to safely repair without guessing, return exactly [[INCOMPREHENSIBLE_SOURCE]] and nothing else.\n\n--- BEGIN MARKDOWN ---\n$(cat "$in_file")\n--- END MARKDOWN ---"
+
+            jq -n \
+              --arg model "$model" \
+              --arg system "$system_prompt" \
+              --arg user "$user_payload" \
+              '{
+                model: $model,
+                temperature: 0.1,
+                messages: [
+                  {role: "system", content: $system},
+                  {role: "user", content: $user}
+                ]
+              }' > "$request_file"
+
+            if ! curl --silent --show-error --fail-with-body \
+              -H "Authorization: Bearer ${GITHUB_TOKEN}" \
+              -H "Content-Type: application/json" \
+              -H "Accept: application/json" \
+              -X POST "$endpoint" \
+              --data @"$request_file" \
+              -o "$raw_response_file"; then
+              echo "fallback:request-failed" > "$status_file"
+              return 0
+            fi
+
+            local extracted
+            extracted="$(jq -r 'if (.choices[0].message.content | type) == "string" then .choices[0].message.content else (.choices[0].message.content | map(select(type == "object") | .text // "") | join("")) end' "$raw_response_file" 2>/dev/null || true)"
+
+            if [[ -z "${extracted//[[:space:]]/}" || "$extracted" == "null" ]]; then
+              echo "fallback:empty-response" > "$status_file"
+              return 0
+            fi
+
+            local normalized
+            normalized="$(printf '%s' "$extracted" | tr -d '\r' | sed 's/^[[:space:]]*//; s/[[:space:]]*$//')"
+            if [[ "$normalized" == "$incomprehensible_marker" ]]; then
+              echo "incomprehensible:claude-marker" > "$status_file"
+              return 0
+            fi
+
+            printf '%s\n' "$extracted" > "$out_file"
+            echo "success:model=${model}" > "$status_file"
+            return 0
+          }
+
+          write_final_with_last_run() {
+            local in_file="$1"
+            local out_file="$2"
+            local run_ts
+            run_ts="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+
+            {
+              echo "---"
+              echo "last_run: \"${run_ts}\""
+              echo "---"
+              echo ""
+              cat "$in_file"
+            } > "$out_file"
+          }
+
+          if ! while IFS= read -r target; do
+            [[ -z "$target" ]] && continue
+            [[ ! -f "$target" ]] && continue
+
+            stem="$(basename "$target" .md)"
+            case_dir="$RUN_DIR/$stem"
+            mkdir -p "$case_dir"
+
+            cp "$target" "$case_dir/original.md"
+            LAST_SUCCESS="$case_dir/original.md"
+            echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+
+            retry_limit="${MAX_REFINEMENT_RETRIES:-1}"
+            if ! [[ "$retry_limit" =~ ^[0-9]+$ ]]; then
+              retry_limit=1
+            fi
+            max_attempts=$((retry_limit + 1))
+            attempt=1
+            success=0
+            : > "$case_dir/attempt-status.log"
+
+            while [[ "$attempt" -le "$max_attempts" ]]; do
+              attempt_dir="$case_dir/attempt-${attempt}"
+              mkdir -p "$attempt_dir/stage-a" "$attempt_dir/stage-b" "$attempt_dir/stage-c" "$attempt_dir/stage-d"
+
+              stage_a_md="$attempt_dir/stage-a/output.md"
+              stage_b_md="$attempt_dir/stage-b/output.md"
+              stage_c_md="$attempt_dir/stage-c/output.md"
+              stage_d_md="$attempt_dir/stage-d/output.md"
+
+              printf '{"mode":"local-transform","stage":"A","target":"%s","attempt":%s}\n' "$target" "$attempt" > "$attempt_dir/stage-a/request.json"
+              transform_stage_a "$case_dir/original.md" "$stage_a_md"
+              printf '{"message":"local deterministic transform completed for stage A"}\n' > "$attempt_dir/stage-a/raw-response.json"
+              LAST_SUCCESS="$stage_a_md"
+              echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+
+              printf '{"mode":"local-transform","stage":"B","target":"%s","attempt":%s}\n' "$target" "$attempt" > "$attempt_dir/stage-b/request.json"
+              transform_stage_b "$stage_a_md" "$stage_b_md"
+              printf '{"message":"local deterministic transform completed for stage B"}\n' > "$attempt_dir/stage-b/raw-response.json"
+              LAST_SUCCESS="$stage_b_md"
+              echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+
+              printf '{"mode":"local-transform","stage":"C","target":"%s","attempt":%s}\n' "$target" "$attempt" > "$attempt_dir/stage-c/request.json"
+              transform_stage_c "$stage_b_md" "$stage_c_md"
+              printf '{"message":"local deterministic transform completed for stage C"}\n' > "$attempt_dir/stage-c/raw-response.json"
+              LAST_SUCCESS="$stage_c_md"
+              echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+
+              transform_stage_d_claude \
+                "$stage_c_md" \
+                "$stage_d_md" \
+                "$attempt_dir/stage-d/request.json" \
+                "$attempt_dir/stage-d/raw-response.json" \
+                "$attempt_dir/stage-d/status.txt"
+              LAST_SUCCESS="$stage_d_md"
+              echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+
+              stage_d_status="$(cat "$attempt_dir/stage-d/status.txt")"
+              echo "attempt-${attempt}: ${stage_d_status}" >> "$case_dir/attempt-status.log"
+
+              if [[ "$stage_d_status" == incomprehensible:* ]]; then
+                if [[ "$attempt" -lt "$max_attempts" ]]; then
+                  attempt=$((attempt + 1))
+                  continue
+                fi
+                echo "Pipeline failed after ${max_attempts} attempts for ${target}. Last status: ${stage_d_status}" > "$RUN_DIR/failure-summary.txt"
+                exit 1
+              fi
+
+              final_out="rfp-markdown/generated/${stem}-final.md"
+              write_final_with_last_run "$stage_d_md" "$final_out"
+
+              python -m pdf_multi_agent_analysis.cli analyze-markdown \
+                "$final_out" \
+                --assets-dir assets \
+                --out-dir rfp-markdown/generated
+
+              LAST_SUCCESS="$final_out"
+              echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+              success=1
+              break
+            done
+
+            if [[ "$success" -ne 1 ]]; then
+              echo "Pipeline failed with unresolved retry state for ${target}." > "$RUN_DIR/failure-summary.txt"
+              exit 1
+            fi
+
+            summary="$case_dir/run-summary.md"
+            {
+              echo '# Run Summary'
+              echo ''
+              echo "- target: $target"
+              echo "- mode: local-transform"
+              echo "- max_attempts: $max_attempts"
+              echo "- final_attempt: $attempt"
+              echo "- stage_a_output: $stage_a_md"
+              echo "- stage_b_output: $stage_b_md"
+              echo "- stage_c_output: $stage_c_md"
+              echo "- stage_d_output: $stage_d_md"
+              echo "- stage_d_status: $stage_d_status"
+              echo "- attempt_status_log: $case_dir/attempt-status.log"
+              echo "- final_output: $final_out"
+              echo "- last_success_artifact: $LAST_SUCCESS"
+            } > "$summary"
+          done < .tmp/targets.txt; then
+            echo "Pipeline failed. Last successful artifact: $(cat "$RUN_DIR/last-success-artifact.txt")" > "$RUN_DIR/failure-summary.txt"
+            exit 1
+          fi
+
+      - name: Prune generated outputs for missing source markdown
+        if: steps.prep.outputs.target_count != '0'
+        run: |
+          set -euo pipefail
+
+          shopt -s nullglob
+          for final_md in rfp-markdown/generated/*-final.md; do
+            stem="$(basename "$final_md" -final.md)"
+            src="rfp-markdown/${stem}.md"
+
+            if [[ ! -f "$src" ]]; then
+              rm -f \
+                "rfp-markdown/generated/${stem}-final.md" \
+                "rfp-markdown/generated/${stem}-final.analysis.md" \
+                "rfp-markdown/generated/${stem}-final.issues.md" \
+                "rfp-markdown/generated/${stem}-final.scorecard.md" \
+                "rfp-markdown/generated/${stem}-final.executive-summary.md"
+              echo "pruned generated set for missing source: $src"
+            fi
+          done
+
+      - name: Snapshot generated outputs to LinkedIn archive
+        if: steps.prep.outputs.target_count != '0'
+        run: |
+          set -euo pipefail
+
+          RUN_TS="$(date -u +"%Y%m%dT%H%M%SZ")"
+          SNAPSHOT_DIR="linkedin-series-archive/${RUN_TS}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}"
+          mkdir -p "$SNAPSHOT_DIR"
+
+          copied=0
+          while IFS= read -r target; do
+            [[ -z "$target" ]] && continue
+            stem="$(basename "$target" .md)"
+
+            for suffix in \
+              "-final.md" \
+              "-final.analysis.md" \
+              "-final.issues.md" \
+              "-final.scorecard.md" \
+              "-final.executive-summary.md"; do
+              src="rfp-markdown/generated/${stem}${suffix}"
+              if [[ -f "$src" ]]; then
+                cp "$src" "$SNAPSHOT_DIR/"
+                copied=$((copied + 1))
+              fi
+            done
+          done < .tmp/targets.txt
+
+          if [[ "$copied" -eq 0 ]]; then
+            rmdir "$SNAPSHOT_DIR"
+            echo "No generated files copied to LinkedIn archive."
+            exit 0
+          fi
+
+          manifest="$SNAPSHOT_DIR/_snapshot-manifest.md"
+          {
+            echo "# LinkedIn snapshot manifest"
+            echo ""
+            echo "- created_utc: ${RUN_TS}"
+            echo "- workflow_run_id: ${{ github.run_id }}"
+            echo "- workflow_attempt: ${{ github.run_attempt }}"
+            echo "- copied_files: ${copied}"
+            echo ""
+            echo "## Targets"
+            while IFS= read -r target; do
+              [[ -z "$target" ]] && continue
+              echo "- ${target}"
+            done < .tmp/targets.txt
+          } > "$manifest"
+
+          echo "LinkedIn snapshot created at ${SNAPSHOT_DIR} with ${copied} files."
+
+      - name: Commit generated outputs when changed
+        if: steps.prep.outputs.target_count != '0'
+        run: |
+          set -euo pipefail
+          RUN_DIR="${{ steps.prep.outputs.run_dir }}"
+
+          # Stage generated outputs and immutable LinkedIn snapshots.
+          git add -A rfp-markdown/generated
+          git add -A linkedin-series-archive
+
+          if git diff --cached --quiet -- rfp-markdown/generated linkedin-series-archive; then
+            echo "No generated markdown or LinkedIn archive changes to commit."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if ! git commit -m "chore(refinement): update generated markdown outputs"; then
+            echo "Generated files unchanged at commit time."
+            exit 0
+          fi
+
+          if ! git push; then
+            manual="$RUN_DIR/manual-commit-instructions.md"
+            {
+              echo '# Manual Commit Required'
+              echo ''
+              echo 'Automated push failed (likely branch protection or token permissions).'
+              echo ''
+              echo 'Run these commands locally:'
+              echo ''
+              echo 'git checkout ${{ github.ref_name }}'
+              echo 'git pull'
+              echo 'git add rfp-markdown/generated linkedin-series-archive'
+              echo 'git commit -m "chore(refinement): update generated markdown outputs"'
+              echo 'git push'
+            } > "$manual"
+          fi
+
+      - name: Upload audit artifacts
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: refinement-audit-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ steps.prep.outputs.run_dir }}
+          if-no-files-found: warn
+
+      - name: Fail with precise last-success message
+        if: failure()
+        run: |
+          set -euo pipefail
+          RUN_DIR="${{ steps.prep.outputs.run_dir }}"
+          if [[ -f "$RUN_DIR/failure-summary.txt" ]]; then
+            cat "$RUN_DIR/failure-summary.txt" >&2
+          else
+            echo "Pipeline failed before artifact tracking initialized." >&2
+          fi
+          exit 1
