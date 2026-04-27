@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RFP Analysis Request — The Mallory Group</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --ink:       #0a0c0f;
+      --bg:        #f6f3ed;
+      --surface:   #edeae2;
+      --rule:      #d4cfc4;
+      --deep:      #1a2e1e;
+      --gold:      #9a7520;
+      --gold-lt:   #c49a30;
+      --muted:     #6a6560;
+      --red:       #6a1c1c;
+      --field-bg:  #faf8f4;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Josefin Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* Ruled paper lines */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: repeating-linear-gradient(
+        transparent,
+        transparent 31px,
+        rgba(180,170,155,0.15) 31px,
+        rgba(180,170,155,0.15) 32px
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Left margin rule */
+    body::after {
+      content: '';
+      position: fixed;
+      left: 88px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(180,120,80,0.12);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 0 32px 80px 108px;
+    }
+
+    /* ── HEADER ── */
+    header {
+      padding: 52px 0 36px;
+      border-bottom: 1px solid var(--rule);
+      margin-bottom: 44px;
+    }
+
+    .eyebrow {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .eyebrow::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(32px, 6vw, 54px);
+      font-weight: 300;
+      line-height: 1.08;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin-bottom: 16px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--deep);
+    }
+
+    .header-desc {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 480px;
+    }
+
+    /* ── SECTION HEADERS ── */
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 24px;
+      margin-top: 40px;
+    }
+
+    .section-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 11px;
+      font-style: italic;
+      color: var(--gold);
+      letter-spacing: 0.1em;
+      flex-shrink: 0;
+    }
+
+    .section-title {
+      font-size: 9px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--muted);
+      flex: 1;
+    }
+
+    .section-title::after {
+      content: '';
+      display: inline-block;
+      width: 40px;
+      height: 1px;
+      background: var(--rule);
+      margin-left: 12px;
+      vertical-align: middle;
+    }
+
+    /* ── FIELDS ── */
+    .field-group {
+      display: grid;
+      gap: 18px;
+      margin-bottom: 6px;
+    }
+
+    .field-group.two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 560px) {
+      .field-group.two-col { grid-template-columns: 1fr; }
+      .page { padding-left: 24px; }
+      body::after { display: none; }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .field label {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .field .required-mark {
+      color: var(--gold);
+      margin-left: 2px;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      background: var(--field-bg);
+      border: none;
+      border-bottom: 1px solid var(--rule);
+      padding: 10px 0;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+      appearance: none;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-bottom-color: var(--deep);
+    }
+
+    .field input::placeholder,
+    .field textarea::placeholder {
+      color: var(--rule);
+    }
+
+    .field textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.7;
+    }
+
+    .field-hint {
+      font-size: 10px;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      line-height: 1.5;
+      margin-top: 2px;
+    }
+
+    /* ── DROP ZONE ── */
+    .drop-zone {
+      border: 1px dashed var(--rule);
+      padding: 36px 28px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      position: relative;
+      margin-top: 4px;
+    }
+
+    .drop-zone:hover,
+    .drop-zone.drag-over {
+      border-color: var(--deep);
+      background: rgba(26,46,30,0.03);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon {
+      font-size: 26px;
+      margin-bottom: 10px;
+      display: block;
+      opacity: 0.35;
+    }
+
+    .drop-title {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ink);
+      margin-bottom: 6px;
+    }
+
+    .drop-hint {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .drop-hint strong {
+      color: var(--deep);
+      font-weight: 400;
+    }
+
+    .file-loaded {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(26,46,30,0.05);
+      border: 1px solid rgba(26,46,30,0.15);
+      margin-top: 10px;
+    }
+    .file-loaded.show { display: flex; }
+
+    .file-name {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 11px;
+      color: var(--deep);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+    }
+
+    .file-size {
+      font-size: 10px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .file-clear {
+      font-size: 9px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      transition: color 0.12s;
+      font-family: 'Josefin Sans', sans-serif;
+    }
+    .file-clear:hover { color: var(--red); }
+
+    /* ── NAICS TAGS ── */
+    .naics-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      min-height: 20px;
+    }
+
+    .naics-tag {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      padding: 4px 10px;
+      background: rgba(26,46,30,0.07);
+      border: 1px solid rgba(26,46,30,0.2);
+      color: var(--deep);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .naics-tag button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 0;
+      line-height: 1;
+      transition: color 0.12s;
+    }
+    .naics-tag button:hover { color: var(--red); }
+
+    .naics-add-row {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      margin-top: 6px;
+    }
+
+    .naics-add-row input {
+      flex: 1;
+    }
+
+    .btn-add-naics {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 9px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      background: transparent;
+      border: 1px solid var(--rule);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.12s;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .btn-add-naics:hover { border-color: var(--deep); color: var(--deep); }
+
+    /* ── CERT CHECKBOXES ── */
+    .cert-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .cert-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 8px 10px;
+      border: 1px solid transparent;
+      transition: border-color 0.12s, background 0.12s;
+    }
+
+    .cert-item:has(input:checked) {
+      border-color: rgba(26,46,30,0.25);
+      background: rgba(26,46,30,0.04);
+    }
+
+    .cert-item input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+      accent-color: var(--deep);
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .cert-label {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      color: var(--ink);
+      cursor: pointer;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--rule);
+      margin: 36px 0;
+    }
+
+    /* ── SUBMIT SECTION ── */
+    .submit-section {
+      margin-top: 40px;
+      padding-top: 32px;
+      border-top: 1px solid var(--rule);
+    }
+
+    .submit-note {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 28px;
+      letter-spacing: 0.03em;
+    }
+
+    .submit-note strong {
+      color: var(--ink);
+      font-weight: 400;
+    }
+
+    .privacy-block {
+      background: var(--surface);
+      border-left: 2px solid var(--gold);
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.7;
+      letter-spacing: 0.03em;
+    }
+
+    .btn-submit {
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      padding: 16px 40px;
+      background: var(--deep);
+      color: var(--bg);
+      border: none;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: #0d1a10;
+    }
+
+    .btn-submit:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* ── LOADING ── */
+    .submit-row {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .loading {
+      display: none;
+      align-items: center;
+      gap: 12px;
+    }
+    .loading.active { display: flex; }
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 1.5px solid var(--rule);
+      border-top-color: var(--deep);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-msg {
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── ERROR / SUCCESS ── */
+    .message {
+      display: none;
+      padding: 16px 20px;
+      margin-top: 20px;
+      font-size: 12px;
+      line-height: 1.7;
+      letter-spacing: 0.04em;
+    }
+
+    .message.error {
+      background: rgba(106,28,28,0.06);
+      border-left: 2px solid var(--red);
+      color: var(--red);
+    }
+
+    .message.success {
+      background: rgba(26,46,30,0.06);
+      border-left: 2px solid var(--deep);
+      color: var(--deep);
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 64px 32px;
+      animation: fadeIn 0.4s ease;
+    }
+    .success-screen.show { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-mark {
+      font-size: 36px;
+      margin-bottom: 20px;
+      display: block;
+      opacity: 0.6;
+    }
+
+    .success-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 300;
+      font-style: italic;
+      color: var(--deep);
+      margin-bottom: 16px;
+    }
+
+    .success-body {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.8;
+      max-width: 400px;
+      margin: 0 auto 28px;
+      letter-spacing: 0.04em;
+    }
+
+    .success-id {
+      font-family: 'Josefin Sans', monospace;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      color: var(--muted);
+      background: var(--surface);
+      padding: 8px 16px;
+      display: inline-block;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--rule);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .footer-brand {
+      font-size: 9px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .footer-note {
+      font-size: 9px;
+      color: var(--rule);
+      letter-spacing: 0.08em;
+    }
+
+    /* Wix iframe height */
+    @media (max-width: 480px) {
+      .page { padding: 0 20px 60px; }
+      body::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ── HEADER ── -->
+  <header>
+    <div class="eyebrow">The Mallory Group</div>
+    <h1>RFP Analysis <em>Request</em></h1>
+    <p class="header-desc">
+      Submit your federal RFP for AI-powered analysis. Receive a company fit
+      score, PWS labor category mapping, and a GSA-based budget estimate
+      within three business days.
+    </p>
+  </header>
+
+  <!-- ── SUCCESS SCREEN ── -->
+  <div class="success-screen" id="successScreen">
+    <span class="success-mark">✓</span>
+    <div class="success-title">Request Received</div>
+    <p class="success-body">
+      Your RFP has been submitted successfully. The Mallory Group will
+      deliver your analysis within three business days. Check your email
+      for confirmation details.
+    </p>
+    <div class="success-id" id="successId"></div>
+  </div>
+
+  <!-- ── FORM ── -->
+  <form id="intakeForm" novalidate>
+
+    <!-- Section 1: Company Information -->
+    <div class="section-head">
+      <span class="section-num">i.</span>
+      <span class="section-title">Company Information</span>
+    </div>
+
+    <div class="field-group two-col">
+      <div class="field">
+        <label>Company Name <span class="required-mark">*</span></label>
+        <input type="text" id="company" name="company"
+               placeholder="Acme Federal Solutions LLC" required/>
+      </div>
+      <div class="field">
+        <label>Contact Name <span class="required-mark">*</span></label>
+        <input type="text" id="contact" name="contact"
+               placeholder="Jane Smith" required/>
+      </div>
+    </div>
+
+    <div class="field-group" style="margin-top:18px;">
+      <div class="field">
+        <label>Contact Email <span class="required-mark">*</span></label>
+        <input type="email" id="email" name="email"
+               placeholder="jane@acmefederal.com" required/>
+        <span class="field-hint">Analysis will be delivered to this address</span>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Section 2: Company Capabilities -->
+    <div class="section-head">
+      <span class="section-num">ii.</span>
+      <span class="section-title">Company Capabilities</span>
+    </div>
+
+    <!-- NAICS Codes -->
+    <div class="field">
+      <label>NAICS Codes <span class="required-mark">*</span></label>
+      <div class="naics-add-row">
+        <input type="text" id="naicsInput" placeholder="e.g. 541511"
+               maxlength="10" pattern="[0-9]*"/>
+        <button type="button" class="btn-add-naics" onclick="addNaics()">
+          + Add Code
+        </button>
+      </div>
+      <div class="naics-tags" id="naicsTags"></div>
+      <input type="hidden" id="naicsHidden" name="naics"/>
+      <span class="field-hint">Add your primary NAICS code first, then any relevant secondaries</span>
+    </div>
+
+    <!-- Certifications -->
+    <div class="field" style="margin-top:20px;">
+      <label>Certifications &amp; Socioeconomic Status</label>
+      <div class="cert-grid">
+        <label class="cert-item">
+          <input type="checkbox" name="cert_8a" value="8(a)"/>
+          <span class="cert-label">8(a)</span>
+        </label>
+        <label class="cert-item">
+          <input type="checkbox" name="cert_hubzone" value="HUBZone"/>
+          <span class="cert-label">HUBZone</span>
+        </label>
+        <label class="cert-item">
+          <input type="checkbox" name="cert_sdvosb" value="SDVOSB"/>
+          <span class="cert-label">SDVOSB</span>
+        </label>
+        <label class="cert-item">
+          <input type="checkbox" name="cert_wosb" value="WOSB"/>
+          <span class="cert-label">WOSB</span>
+        </label>
+        <label class="cert-item">
+          <input type="checkbox" name="cert_edwosb" value="EDWOSB"/>
+          <span class="cert-label">EDWOSB</span>
+        </label>
+        <label class="cert-item">
+          <input type="checkbox" name="cert_vosb" value="VOSB"/>
+          <span class="cert-label">VOSB</span>
+        </label>
+        <label class="cert-item">
+          <input type="checkbox" name="cert_iso" value="ISO 9001"/>
+          <span class="cert-label">ISO 9001</span>
+        </label>
+        <label class="cert-item">
+          <input type="checkbox" name="cert_cmmi" value="CMMI"/>
+          <span class="cert-label">CMMI</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Contract Vehicles -->
+    <div class="field" style="margin-top:20px;">
+      <label>Contract Vehicles</label>
+      <textarea id="vehicles" name="vehicles"
+        placeholder="List active contract vehicles — GSA schedules, GWACs, agency IDIQs&#10;e.g. GSA IT Schedule 70, CIO-SP3, Alliant 2, agency BPA"></textarea>
+      <span class="field-hint">Include schedule numbers where known</span>
+    </div>
+
+    <!-- Past Performance -->
+    <div class="field" style="margin-top:18px;">
+      <label>Past Performance Summary <span class="required-mark">*</span></label>
+      <textarea id="pastPerformance" name="pastPerformance" rows="5"
+        placeholder="Summarize your most relevant past performance — agency clients, contract types, dollar values, period of performance, and key deliverables. 200 words maximum." required></textarea>
+      <span class="field-hint" id="ppCount">0 / 200 words</span>
+    </div>
+
+    <!-- Team Size -->
+    <div class="field-group two-col" style="margin-top:18px;">
+      <div class="field">
+        <label>Team Size</label>
+        <select id="teamSize" name="teamSize">
+          <option value="">Select range</option>
+          <option value="1-10">1 – 10 employees</option>
+          <option value="11-50">11 – 50 employees</option>
+          <option value="51-200">51 – 200 employees</option>
+          <option value="201-500">201 – 500 employees</option>
+          <option value="500+">500+ employees</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Key Personnel Summary</label>
+        <input type="text" id="keyPersonnel" name="keyPersonnel"
+               placeholder="e.g. 3 PMs, 2 senior analysts, 1 solution architect"/>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Section 3: RFP Upload -->
+    <div class="section-head">
+      <span class="section-num">iii.</span>
+      <span class="section-title">RFP Document</span>
+    </div>
+
+    <div class="field">
+      <label>RFP PDF <span class="required-mark">*</span></label>
+      <div class="drop-zone" id="dropZone">
+        <input type="file" id="rfpFile" name="rfpFile"
+               accept=".pdf" onchange="handleFile(event)"/>
+        <span class="drop-icon">📋</span>
+        <div class="drop-title">Drop PDF here or click to browse</div>
+        <div class="drop-hint">
+          Federal RFPs from SAM.gov are accepted directly.<br>
+          <strong>PDF files only.</strong> Maximum 25MB.
+        </div>
+      </div>
+      <div class="file-loaded" id="fileLoaded">
+        <span class="file-name" id="fileName">—</span>
+        <span class="file-size" id="fileSize"></span>
+        <button type="button" class="file-clear" onclick="clearFile()">✕ Remove</button>
+      </div>
+    </div>
+
+    <!-- ── SUBMIT ── -->
+    <div class="submit-section">
+
+      <p class="submit-note">
+        <strong>What happens next:</strong> Your RFP is processed through a
+        multi-agent AI pipeline that extracts requirements, maps labor
+        categories to GSA schedule rates, and scores your company's fit
+        against the solicitation. The Mallory Group reviews the output and
+        delivers a structured analysis report directly to your email within
+        <strong>three business days.</strong>
+      </p>
+
+      <div class="privacy-block">
+        <strong>Privacy:</strong> Your RFP and company information are
+        transmitted securely to a private processing endpoint. No data is
+        shared with third parties. Documents are used solely to generate
+        your analysis report.
+      </div>
+
+      <div class="submit-row">
+        <button type="submit" class="btn-submit" id="submitBtn">
+          Submit RFP for Analysis
+          <span>→</span>
+        </button>
+        <div class="loading" id="loadingState">
+          <div class="spinner"></div>
+          <span class="loading-msg" id="loadingMsg">Uploading…</span>
+        </div>
+      </div>
+
+      <div class="message" id="errorMsg"></div>
+
+    </div>
+
+  </form>
+
+  <footer>
+    <span class="footer-brand">The Mallory Group — RFP Analyzer</span>
+    <span class="footer-note">themallorygroup.ai</span>
+  </footer>
+
+</div><!-- /page -->
+
+<script>
+// ── CONFIGURATION ──────────────────────────────────────────────────────
+// Replace with your deployed Cloudflare Worker URL before going live
+const WORKER_URL = 'https://tmg-rfp-intake.ross-mallory.workers.dev/submit';
+
+// ── STATE ──────────────────────────────────────────────────────────────
+let selectedFile  = null;
+let naicsCodes    = [];
+
+// ── DRAG AND DROP ──────────────────────────────────────────────────────
+const dropZone = document.getElementById('dropZone');
+
+dropZone.addEventListener('dragover', e => {
+  e.preventDefault();
+  dropZone.classList.add('drag-over');
+});
+dropZone.addEventListener('dragleave', () => {
+  dropZone.classList.remove('drag-over');
+});
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer?.files?.[0];
+  if (file) processFile(file);
+});
+
+function handleFile(e) {
+  const file = e.target.files?.[0];
+  if (file) processFile(file);
+}
+
+function processFile(file) {
+  if (!file.name.toLowerCase().endsWith('.pdf')) {
+    showError('Please upload a PDF file.');
+    return;
+  }
+  if (file.size > 25 * 1024 * 1024) {
+    showError('File size exceeds 25MB limit.');
+    return;
+  }
+  selectedFile = file;
+  document.getElementById('fileName').textContent  = file.name;
+  document.getElementById('fileSize').textContent  =
+    (file.size / 1024 / 1024).toFixed(2) + ' MB';
+  document.getElementById('fileLoaded').classList.add('show');
+  clearError();
+}
+
+function clearFile() {
+  selectedFile = null;
+  document.getElementById('rfpFile').value     = '';
+  document.getElementById('fileLoaded').classList.remove('show');
+}
+
+// ── NAICS TAGS ─────────────────────────────────────────────────────────
+function addNaics() {
+  const input = document.getElementById('naicsInput');
+  const code  = input.value.trim().replace(/\D/g, '');
+  if (!code || code.length < 4) return;
+  if (naicsCodes.includes(code)) { input.value = ''; return; }
+  naicsCodes.push(code);
+  renderNaics();
+  input.value = '';
+}
+
+document.getElementById('naicsInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') { e.preventDefault(); addNaics(); }
+});
+
+function removeNaics(code) {
+  naicsCodes = naicsCodes.filter(c => c !== code);
+  renderNaics();
+}
+
+function renderNaics() {
+  const container = document.getElementById('naicsTags');
+  document.getElementById('naicsHidden').value = naicsCodes.join(', ');
+  container.innerHTML = naicsCodes.map(c => `
+    <span class="naics-tag">
+      ${c}
+      <button type="button" onclick="removeNaics('${c}')"
+              title="Remove">✕</button>
+    </span>`).join('');
+}
+
+// ── WORD COUNT ─────────────────────────────────────────────────────────
+document.getElementById('pastPerformance').addEventListener('input', function() {
+  const words = this.value.trim()
+    ? this.value.trim().split(/\s+/).length : 0;
+  const el = document.getElementById('ppCount');
+  el.textContent = `${words} / 200 words`;
+  el.style.color = words > 200 ? 'var(--red)' : 'var(--muted)';
+});
+
+// ── FORM SUBMIT ────────────────────────────────────────────────────────
+document.getElementById('intakeForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  clearError();
+
+  // Validate required fields
+  const company         = document.getElementById('company').value.trim();
+  const contact         = document.getElementById('contact').value.trim();
+  const email           = document.getElementById('email').value.trim();
+  const pastPerformance = document.getElementById('pastPerformance').value.trim();
+
+  if (!company)         { showError('Company name is required.'); return; }
+  if (!contact)         { showError('Contact name is required.'); return; }
+  if (!email)           { showError('Contact email is required.'); return; }
+  if (!validateEmail(email)) { showError('Please enter a valid email address.'); return; }
+  if (!naicsCodes.length)    { showError('At least one NAICS code is required.'); return; }
+  if (!pastPerformance)      { showError('Past performance summary is required.'); return; }
+  if (!selectedFile)         { showError('Please upload the RFP PDF.'); return; }
+
+  // Word count check
+  const wordCount = pastPerformance.split(/\s+/).length;
+  if (wordCount > 200) {
+    showError(`Past performance summary exceeds 200 words (currently ${wordCount} words).`);
+    return;
+  }
+
+  // Collect certifications
+  const certBoxes = document.querySelectorAll('input[name^="cert_"]:checked');
+  const certs     = Array.from(certBoxes).map(cb => cb.value).join(', ');
+
+  // Build FormData
+  const formData = new FormData();
+  formData.append('company',         company);
+  formData.append('contact',         contact);
+  formData.append('email',           email);
+  formData.append('naics',           naicsCodes.join(', '));
+  formData.append('certifications',  certs);
+  formData.append('vehicles',        document.getElementById('vehicles').value.trim());
+  formData.append('pastPerformance', pastPerformance);
+  formData.append('teamSize',        document.getElementById('teamSize').value);
+  formData.append('keyPersonnel',    document.getElementById('keyPersonnel').value.trim());
+  formData.append('rfpFile',         selectedFile, selectedFile.name);
+
+  setLoading(true, 'Uploading RFP…');
+
+  try {
+    const res  = await fetch(WORKER_URL, { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!res.ok || !data.success) {
+      showError(data.error || 'Submission failed. Please try again.');
+      setLoading(false);
+      return;
+    }
+
+    // Success
+    setLoading(false);
+    document.getElementById('intakeForm').style.display  = 'none';
+    const ss = document.getElementById('successScreen');
+    ss.classList.add('show');
+    document.getElementById('successId').textContent =
+      `Submission ID: ${data.submissionId}`;
+    ss.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  } catch (err) {
+    showError('Network error — please check your connection and try again.');
+    setLoading(false);
+  }
+});
+
+// ── HELPERS ────────────────────────────────────────────────────────────
+function setLoading(on, msg) {
+  document.getElementById('submitBtn').disabled = on;
+  document.getElementById('loadingState').classList.toggle('active', on);
+  document.getElementById('loadingMsg').textContent = msg || '';
+}
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = '⚠ ' + msg;
+  el.className   = 'message error';
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function clearError() {
+  const el = document.getElementById('errorMsg');
+  el.style.display = 'none';
+}
+
+function validateEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+// ── WIX IFRAME HEIGHT ──────────────────────────────────────────────────
+function postHeight() {
+  const h = document.body.scrollHeight;
+  if (window.parent !== window) {
+    window.parent.postMessage({ type: 'tmg-height', height: h }, '*');
+  }
+}
+const ro = new ResizeObserver(postHeight);
+ro.observe(document.body);
+postHeight();
+</script>
+</body>
+</html>
