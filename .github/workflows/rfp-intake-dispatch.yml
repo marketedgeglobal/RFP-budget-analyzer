@@ -99,10 +99,22 @@ jobs:
           echo "Downloading: ${R2_KEY}"
           echo "Destination: ${DEST_DIR}/${RFP_FILENAME}"
 
-          aws s3 cp "s3://${R2_BUCKET_NAME}/${R2_KEY}" \
+          aws s3api get-object \
+            --bucket "${R2_BUCKET_NAME}" \
+            --key "${R2_KEY}" \
             "${DEST_DIR}/${RFP_FILENAME}" \
             --endpoint-url "${R2_ENDPOINT}" \
-            --region auto
+            --region us-east-1 || {
+              echo "Primary fetch failed for key: ${R2_KEY}"
+              echo "Listing nearby objects for troubleshooting..."
+              aws s3api list-objects-v2 \
+                --bucket "${R2_BUCKET_NAME}" \
+                --prefix "rfp-pdfs/${SUBMISSION_ID}/" \
+                --max-items 20 \
+                --endpoint-url "${R2_ENDPOINT}" \
+                --region us-east-1
+              exit 1
+            }
 
           echo "Download complete."
           ls -lh "${DEST_DIR}/"
