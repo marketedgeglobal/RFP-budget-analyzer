@@ -15,6 +15,35 @@ name: RFP Intake Dispatch
 
 on:
   workflow_dispatch:
+    inputs:
+      submissionId:
+        description: "Unique submission identifier"
+        required: true
+        type: string
+      company:
+        description: "Submitting company name"
+        required: true
+        type: string
+      contact:
+        description: "Contact person name"
+        required: true
+        type: string
+      email:
+        description: "Contact email"
+        required: true
+        type: string
+      r2Key:
+        description: "R2 object key, e.g. rfp-pdfs/sub_123/filename.pdf"
+        required: true
+        type: string
+      rfpFileName:
+        description: "Original PDF filename"
+        required: true
+        type: string
+      submittedAt:
+        description: "ISO timestamp"
+        required: true
+        type: string
   repository_dispatch:
     types: [rfp-submission]
 
@@ -32,11 +61,11 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| Submission ID | ${{ github.event.client_payload.submissionId }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Company | ${{ github.event.client_payload.company }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Contact | ${{ github.event.client_payload.contact }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| RFP File | ${{ github.event.client_payload.rfpFileName }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Submitted | ${{ github.event.client_payload.submittedAt }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Submission ID | ${{ github.event.client_payload.submissionId || github.event.inputs.submissionId }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Company | ${{ github.event.client_payload.company || github.event.inputs.company }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contact | ${{ github.event.client_payload.contact || github.event.inputs.contact }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| RFP File | ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Submitted | ${{ github.event.client_payload.submittedAt || github.event.inputs.submittedAt }} |" >> $GITHUB_STEP_SUMMARY
 
       # ── STEP 2: Checkout repository ───────────────────────────────────────
       - name: Checkout repository
@@ -56,9 +85,9 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           R2_ACCOUNT_ID:         ${{ secrets.R2_ACCOUNT_ID }}
           R2_BUCKET_NAME:        ${{ secrets.R2_BUCKET_NAME }}
-          R2_KEY:                ${{ github.event.client_payload.r2Key }}
-          RFP_FILENAME:          ${{ github.event.client_payload.rfpFileName }}
-          SUBMISSION_ID:         ${{ github.event.client_payload.submissionId }}
+          R2_KEY:                ${{ github.event.client_payload.r2Key || github.event.inputs.r2Key }}
+          RFP_FILENAME:          ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }}
+          SUBMISSION_ID:         ${{ github.event.client_payload.submissionId || github.event.inputs.submissionId }}
         run: |
           # R2 S3-compatible endpoint
           R2_ENDPOINT="https://${R2_ACCOUNT_ID}.r2.cloudflarestorage.com"
@@ -81,8 +110,8 @@ jobs:
       # ── STEP 5: Validate downloaded file ──────────────────────────────────
       - name: Validate PDF file
         env:
-          RFP_FILENAME: ${{ github.event.client_payload.rfpFileName }}
-          SUBMISSION_ID: ${{ github.event.client_payload.submissionId }}
+          RFP_FILENAME: ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }}
+          SUBMISSION_ID: ${{ github.event.client_payload.submissionId || github.event.inputs.submissionId }}
         run: |
           DEST_PATH="rfp-pdfs/${SUBMISSION_ID}/${RFP_FILENAME}"
 
@@ -103,12 +132,12 @@ jobs:
       # ── STEP 6: Write submission metadata file ────────────────────────────
       - name: Write submission metadata
         env:
-          SUBMISSION_ID:  ${{ github.event.client_payload.submissionId }}
-          COMPANY:        ${{ github.event.client_payload.company }}
-          CONTACT:        ${{ github.event.client_payload.contact }}
-          EMAIL:          ${{ github.event.client_payload.email }}
-          RFP_FILENAME:   ${{ github.event.client_payload.rfpFileName }}
-          SUBMITTED_AT:   ${{ github.event.client_payload.submittedAt }}
+          SUBMISSION_ID:  ${{ github.event.client_payload.submissionId || github.event.inputs.submissionId }}
+          COMPANY:        ${{ github.event.client_payload.company || github.event.inputs.company }}
+          CONTACT:        ${{ github.event.client_payload.contact || github.event.inputs.contact }}
+          EMAIL:          ${{ github.event.client_payload.email || github.event.inputs.email }}
+          RFP_FILENAME:   ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }}
+          SUBMITTED_AT:   ${{ github.event.client_payload.submittedAt || github.event.inputs.submittedAt }}
         run: |
           DEST_DIR="rfp-pdfs/${SUBMISSION_ID}"
           METADATA_PATH="${DEST_DIR}/submission-metadata.json"
@@ -131,9 +160,9 @@ jobs:
       # ── STEP 7: Commit PDF and metadata to trigger conversion pipeline ─────
       - name: Commit PDF to rfp-pdfs/
         env:
-          SUBMISSION_ID: ${{ github.event.client_payload.submissionId }}
-          COMPANY:       ${{ github.event.client_payload.company }}
-          RFP_FILENAME:  ${{ github.event.client_payload.rfpFileName }}
+          SUBMISSION_ID: ${{ github.event.client_payload.submissionId || github.event.inputs.submissionId }}
+          COMPANY:       ${{ github.event.client_payload.company || github.event.inputs.company }}
+          RFP_FILENAME:  ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }}
         run: |
           git config user.name  "TMG RFP Analyzer"
           git config user.email "actions@github.com"
@@ -153,8 +182,8 @@ jobs:
       - name: Update run summary
         if: always()
         env:
-          SUBMISSION_ID: ${{ github.event.client_payload.submissionId }}
-          COMPANY:       ${{ github.event.client_payload.company }}
+          SUBMISSION_ID: ${{ github.event.client_payload.submissionId || github.event.inputs.submissionId }}
+          COMPANY:       ${{ github.event.client_payload.company || github.event.inputs.company }}
         run: |
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "## Pipeline Status" >> $GITHUB_STEP_SUMMARY
