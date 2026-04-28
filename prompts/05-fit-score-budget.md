@@ -6,16 +6,19 @@
 # A complete Capture Intelligence Brief delivered directly to the
 # submitting company containing:
 #   1. Executive Summary
-#   2. Overall Fit Score (weighted dimensions)
-#   3. Technical Insights
-#   4. Key Deliverables
-#   5. Proposal Compliance Matrix
-#   6. PWS Labor Category Mapping
-#   7. Budget Estimate with Budgeting Considerations
-#   8. Proposal Lead Roles
-#   9. Win Themes (expanded with discriminators and proof points)
-#  10. Custom Past Performance Statements
-#  11. Strategic Recommendations (including proposal schedule)
+#   2. Opportunity Summary
+#   3. Evaluation Criteria and Weightings
+#   4. Overall Fit Score (weighted dimensions)
+#   5. Technical Insights
+#   6. Key Deliverables
+#   7. Proposal Compliance Matrix
+#   8. PWS Labor Category Mapping
+#   9. Budget Estimate with Budgeting Considerations
+#  10. Proposal Lead Roles
+#  11. Competitive Landscape and BD Risk Factors
+#  12. Win Themes (expanded with discriminators and proof points)
+#  13. Custom Past Performance Statements
+#  14. Strategic Recommendations (including proposal schedule)
 #
 # USAGE INSTRUCTIONS
 # ──────────────────
@@ -151,6 +154,33 @@ Analysis Date: [Today's date]
 
 ---
 
+## Opportunity Summary
+
+[Summarize the opportunity in a compact decision-ready format. Include agency/customer, contract type, NAICS, set-aside status, period of performance, estimated or ceiling value, and key dates if stated.]
+
+| Field | Value | Source Reference |
+|---|---|---|
+| Agency / Customer | [Value] | [Section] |
+| Contract Type | [FFP / T&M / CPFF / etc.] | [Section] |
+| NAICS | [Code and title] | [Section] |
+| Set-Aside | [Type or None stated] | [Section] |
+| Period of Performance | [Base/Options, dates or duration] | [Section] |
+| Estimated Value | [$ value, range, or Not stated] | [Section] |
+| Solicitation Number | [Value] | [Section] |
+| Response Due Date | [Date/time/time zone] | [Section] |
+
+---
+
+## Evaluation Criteria and Weightings
+
+[Summarize how the agency will evaluate offers. Include stated factors, subfactors, and any explicit weighting, order of importance, adjectival language, or tradeoff method.]
+
+| Evaluation Factor | Weight / Importance | Notes for Capture Strategy | Source Reference |
+|---|---|---|---|
+| [Factor] | [Weight or relative rank] | [What this means for your response] | [Section] |
+
+---
+
 ## Overall Fit Score
 
 **Score: [X] / 100 — [Recommendation Label]**
@@ -182,9 +212,9 @@ Analysis Date: [Today's date]
 
 [1–2 sentences on the deliverables landscape for this contract and what they signal about agency oversight expectations.]
 
-| Deliverable | PWS Reference | Frequency | Acceptance Criteria | Risk Level |
+| Deliverable | PWS Reference | Frequency | Acceptance Criteria | BD Attention Priority |
 |---|---|---|---|---|
-| [Deliverable name] | [Section] | [Monthly/Quarterly/At milestone/etc.] | [Who accepts and how] | [Low/Med/High] |
+| [Deliverable name] | [Section] | [Monthly/Quarterly/At milestone/etc.] | [Who accepts and how] | [Immediate/Monitor/Informational] |
 
 **Deliverables Note:**
 [1–2 sentences flagging any deliverable that represents unusual burden, unclear acceptance criteria, or a potential source of contract disputes or payment delays.]
@@ -266,6 +296,21 @@ Analysis Date: [Today's date]
 
 ---
 
+## Competitive Landscape and BD Risk Factors
+
+[2–3 sentences summarizing competitive posture and whether this looks open, protected, or incumbent-favored.]
+
+| Indicator | Evidence from Solicitation | BD Impact | Recommended Action |
+|---|---|---|---|
+| Incumbent Advantage | [Transition language, incumbent references, existing environment specifics] | [Impact to win probability] | [Action] |
+| Sole-Source or Limited Competition Signals | [Evidence] | [Impact] | [Action] |
+| Timeline Realism | [Proposal window, transition deadlines, staffing start constraints] | [Impact] | [Action] |
+| Bundling / Scope Compression | [Multi-domain requirements or oversized scope] | [Impact] | [Action] |
+
+[If evidence is absent for any indicator, state "No clear indicator in provided text" rather than guessing.]
+
+---
+
 ## Win Themes
 
 [2–3 sentences on win theme strategy for this RFP. Describe what this agency values most based on evaluation criteria language and solicitation tone, and what narrative frame gives this company the strongest competitive positioning.]
@@ -343,6 +388,9 @@ If the company's past performance summary lacks sufficient detail for specific s
 
 **Schedule Risk:**
 [1–2 sentences on any timeline risk given the RFP complexity, company team size, and time remaining before the due date. Flag if the timeline is tight and recommend what to descope or deprioritize if resources are constrained.]
+
+### Compliance and Submission Red Flags
+[3–5 bullets focused on proposal compliance failure points (portal constraints, file/volume formatting, late submission exposure, missing representations/certifications, page limit pressure) and specific mitigation actions.]
 
 ---
 
