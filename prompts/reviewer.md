@@ -15,6 +15,22 @@ Focus your review on whether the chunk analysis clearly covers:
 	material FAR/DFARS clauses, submission-time certifications, page/font/volume requirements, teaming plan requirements, and nonstandard clauses
 - Competitive Landscape Indicators completeness:
 	incumbent clues, pre-solicitation activity signals, sole-source/brand-name language, bundling/consolidation indicators, and preferred-solution bias language
+- Incumbent Analysis completeness:
+	recompete vs new requirement determination, incumbent tenure evidence, incumbent advantage/disadvantage under revised solicitation structure, dissatisfaction indicators, and material structural changes suggesting a different desired approach
+- Price to Win Indicators completeness:
+	IGE disclosure, LPTA vs best-value implications, cost realism language, escalation/economic price adjustment terms, NTE/budget constraints, and wage determination pricing impacts
+- Teaming Recommendations completeness:
+	capability-gap driven partner needs, prime-structure advantage (large vs small), mentor-protege/JV language, subcontracting plan obligations/goals, and single-firm feasibility versus required teaming
+- Small Business Considerations completeness:
+	eligible/excluded set-aside pathways by NAICS/size standard, large-business subcontracting plan requirements, small-business participation targets, size-standard competitive effects, 8(a) threshold implications, and limitations on subcontracting impacts
+- Proposal Response Strategy completeness:
+	explicit bid/no-bid indicators, highest-risk proposal volumes by factor weighting, achievability of recency/relevancy thresholds, technical risk from vague/contradictory scope language, and emphasis guidance aligned to evaluator priorities
+- Transition and Mobilization Risk completeness:
+	transition duration and funding treatment, right-of-first-refusal/incumbent hiring obligations, GFE/GFI/facility dependencies, clearance timeline feasibility, and key personnel availability risk between submission and award
+- Questions for the Q&A Period completeness:
+	presence of actionable clarification questions that address ambiguity, incumbent advantage, technical clarity signaling, pricing assumptions, and contradictory solicitation instructions
+- Glossary of Acronyms and Terms completeness:
+	non-standard acronym definitions, program-specific terminology context, and predecessor-program or legacy-system references that affect proposal interpretation
 - BD Risk Factors and Win Theme Inputs:
 	evidence-backed timeline/evaluation/IP/qualification/geographic/price risks and traceable theme candidates tied to agency pain points
 

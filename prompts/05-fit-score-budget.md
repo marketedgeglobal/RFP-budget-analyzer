@@ -22,6 +22,14 @@
 #  15. Win Themes (expanded with discriminators and proof points)
 #  16. Custom Past Performance Statements
 #  17. Strategic Recommendations (including proposal schedule)
+#  18. Incumbent Analysis
+#  19. Price to Win Indicators
+#  20. Teaming Recommendations
+#  21. Small Business Considerations
+#  22. Proposal Response Strategy
+#  23. Transition and Mobilization Risk
+#  24. Questions for the Q&A Period
+#  25. Glossary of Acronyms and Terms
 #
 # USAGE INSTRUCTIONS
 # ──────────────────
@@ -148,6 +156,10 @@ Professional tone suitable for direct client delivery.
 Prepared by MarketEdge RFP Budget Analyzer
 Submission ID: {{SUBMISSION_ID}}
 Analysis Date: [Today's date]
+
+## BD Opportunity Assessment (Bid/No-Bid Gate Review)
+
+[Structure every section below so a capture manager can brief leadership directly at a bid/no-bid gate review.]
 
 ---
 
@@ -373,6 +385,133 @@ Analysis Date: [Today's date]
 | Preferred Solution Bias | [Language favoring a specific approach/vendor] | [Impact] | [Action] |
 
 [If evidence is absent for any indicator, state "No clear indicator in provided text" rather than guessing.]
+
+---
+
+## Incumbent Analysis
+
+[Assess whether this appears to be a recompete or net-new requirement and what that means for competitive entry.] 
+
+| Incumbent Analysis Element | Finding | Evidence from Solicitation | BD Interpretation |
+|---|---|---|---|
+| Recompete vs New Requirement | [Recompete/New/Unclear] | [Section] | [Implication for entry strategy] |
+| Incumbent Tenure | [Years or Not stated] | [Section] | [Stability or disruption risk] |
+| Structural Advantage/Disadvantage | [Assessment] | [Section] | [How solicitation design affects incumbent edge] |
+| Performance Dissatisfaction Signals | [Assessment] | [Section] | [Opportunity to displace incumbent] |
+| Material Solicitation Structure Changes | [Assessment] | [Section] | [Whether agency is signaling need for different approach] |
+
+---
+
+## Price to Win Indicators
+
+[Summarize only evidence-backed pricing signals that should shape capture pricing posture and margin strategy.]
+
+| Indicator | Finding | Source Reference | Pricing Implication |
+|---|---|---|---|
+| Government Estimate / IGE | [Value or Not disclosed] | [Section] | [Anchor or uncertainty effect] |
+| Evaluation Structure | [LPTA / Best Value Tradeoff / Other] | [Section] | [Positioning and margin posture] |
+| Cost Realism Evaluation | [Yes/No/Conditional] | [Section] | [Labor-rate and staffing realism pressure] |
+| Escalation / EPA Clauses | [Terms] | [Section] | [Out-year pricing treatment] |
+| NTE Ceiling / Budget Constraint | [Value or implied cap] | [Section] | [Ceiling discipline needed] |
+| Wage Determination Applicability | [SCA / Davis-Bacon / Union / None stated] | [Section] | [Floor impacts on labor build] |
+
+---
+
+## Teaming Recommendations
+
+[Provide specific teaming guidance tied to observable capability gaps and solicitation structure.]
+
+**Recommended Teaming Posture:**
+[Prime-only / Prime with subs / JV / Mentor-Protege / Other with rationale.]
+
+**Capability Gap-to-Partner Map:**
+[Bulleted list mapping each identified gap to a partner profile needed to close it.]
+
+**Structure and Compliance Considerations:**
+[Bulleted list covering prime-size advantage under set-aside, mentor-protege/JV language, subcontracting plan requirements, participation goals, and whether single-firm execution appears unrealistic.]
+
+---
+
+## Small Business Considerations
+
+[Summarize small business pathway constraints and advantages for capture decision-making.]
+
+| Consideration | Finding | Source Reference | BD Impact |
+|---|---|---|---|
+| Eligible Set-Aside Pathways | [List] | [Section] | [Who can prime] |
+| Excluded Set-Aside Pathways | [List] | [Section] | [Who is screened out] |
+| NAICS Size Standard Effect | [Favors smaller/larger competitors] | [Section] | [Competitive density implication] |
+| Large Business Subcontracting Plan Requirement | [Yes/No + goals] | [Section] | [Compliance and cost impact] |
+| Small Business Participation Goals | [Percentages] | [Section] | [Teaming architecture implication] |
+| 8(a) Threshold Implications | [Assessment] | [Section] | [Acquisition pathway risk/opportunity] |
+| Limitations on Subcontracting | [Rule summary] | [Section] | [Execution and teammate mix constraints] |
+
+---
+
+## Proposal Response Strategy
+
+[Provide an actionable strategy a capture team can execute immediately.]
+
+### Bid / No-Bid Indicators
+[Bulleted list assessing fit, competitive position, timeline feasibility, and scope complexity.]
+
+### Highest-Risk Proposal Volumes
+[Bulleted list identifying which volumes carry greatest execution/compliance risk and why based on evaluation weighting.]
+
+### Recency/Relevancy Feasibility
+[2–3 sentences on achievability of past performance recency/relevancy thresholds using the submitted profile.] 
+
+### Technical Approach Ambiguity Risks
+[Bulleted list of vague or contradictory PWS areas that could create proposal risk and recommended mitigation in narrative strategy.]
+
+### Recommended Emphasis for Source Selection
+[Bulleted list of proposal emphasis priorities based on evaluator language and criteria weighting.]
+
+---
+
+## Transition and Mobilization Risk
+
+[Assess transition feasibility and first-120-day execution risk.]
+
+| Risk Area | Finding | Source Reference | Mitigation Priority |
+|---|---|---|---|
+| Transition Period Length | [Duration] | [Section] | [High/Medium/Low] |
+| Transition Funding Treatment | [Separate CLIN / Absorbed / Not stated] | [Section] | [Pricing and staffing implication] |
+| Incumbent Employee Hiring / ROFR | [Requirement] | [Section] | [Workforce continuity risk] |
+| GFE/GFI/Facility Dependencies | [Requirement/gaps] | [Section] | [Mobilization dependency risk] |
+| Clearance Timeline vs POP Start | [Assessment] | [Section] | [Staffing readiness risk] |
+| Key Personnel Availability | [Assessment] | [Section] | [Offer realism and retention risk] |
+
+---
+
+## Questions for the Q&A Period
+
+[Provide five to ten specific questions that improve proposal clarity, reduce avoidable risk, and level competitive access.]
+
+| Question | Purpose | Category | Priority |
+|---|---|---|---|
+| [Question 1] | [What ambiguity or risk it resolves] | [Technical/Price/Contractual/Transition/Competitive] | [High/Medium/Low] |
+| [Question 2] | [Purpose] | [Category] | [Priority] |
+| [Question 3] | [Purpose] | [Category] | [Priority] |
+| [Question 4] | [Purpose] | [Category] | [Priority] |
+| [Question 5] | [Purpose] | [Category] | [Priority] |
+| [Question 6] | [Purpose] | [Category] | [Priority] |
+
+[Include additional rows up to ten when supported by solicitation ambiguity. Ensure at least one question each addresses incumbent advantage, technical ambiguity, and pricing assumptions such as IGE, wage determinations, ODC treatment, or fee structure.] 
+
+---
+
+## Glossary of Acronyms and Terms
+
+[Extract non-standard acronyms and context-bearing terms for proposal writers and reviewers.]
+
+| Acronym / Term | Definition or Meaning in Context | Where Used | Why It Matters for Proposal Development |
+|---|---|---|---|
+| [Term] | [Definition] | [Section] | [Impact] |
+| [Term] | [Definition] | [Section] | [Impact] |
+| [Term] | [Definition] | [Section] | [Impact] |
+
+[Include predecessor program names, legacy contracts, and agency-specific systems when referenced.] 
 
 ---
 
