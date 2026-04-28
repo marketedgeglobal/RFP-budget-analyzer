@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>RFP Analysis Request — The Mallory Group</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <title>RFP Analysis Request — MarketEdge</title>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
     :root {
-      --ink:       #0a0c0f;
-      --bg:        #f6f3ed;
-      --surface:   #edeae2;
-      --rule:      #d4cfc4;
-      --deep:      #1a2e1e;
-      --gold:      #9a7520;
-      --gold-lt:   #c49a30;
-      --muted:     #6a6560;
-      --red:       #6a1c1c;
-      --field-bg:  #faf8f4;
+      --ink:       #1a1f2e;
+      --bg:        #ffffff;
+      --surface:   #f4f6f9;
+      --rule:      #dde2ea;
+      --deep:      #1a3a5c;
+      --gold:      #c8922a;
+      --gold-lt:   #e0a840;
+      --muted:     #5a6478;
+      --red:       #c0392b;
+      --field-bg:  #f8fafc;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -25,38 +26,10 @@
     body {
       background: var(--bg);
       color: var(--ink);
-      font-family: 'Josefin Sans', sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-weight: 300;
       min-height: 100vh;
       position: relative;
-    }
-
-    /* Ruled paper lines */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: repeating-linear-gradient(
-        transparent,
-        transparent 31px,
-        rgba(180,170,155,0.15) 31px,
-        rgba(180,170,155,0.15) 32px
-      );
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Left margin rule */
-    body::after {
-      content: '';
-      position: fixed;
-      left: 88px;
-      top: 0;
-      bottom: 0;
-      width: 1px;
-      background: rgba(180,120,80,0.12);
-      pointer-events: none;
-      z-index: 0;
     }
 
     .page {
@@ -69,42 +42,34 @@
 
     /* ── HEADER ── */
     header {
-      padding: 52px 0 36px;
+      padding: 32px 0 36px;
+      border-top: 4px solid var(--deep);
       border-bottom: 1px solid var(--rule);
       margin-bottom: 44px;
     }
 
     .eyebrow {
-      font-family: 'Josefin Sans', sans-serif;
-      font-size: 9px;
-      letter-spacing: 0.3em;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.22em;
       text-transform: uppercase;
-      color: var(--gold);
+      color: var(--deep);
       margin-bottom: 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .eyebrow::before {
-      content: '';
-      width: 24px;
-      height: 1px;
-      background: var(--gold);
     }
 
     h1 {
-      font-family: 'Cormorant Garamond', serif;
-      font-size: clamp(32px, 6vw, 54px);
-      font-weight: 300;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 600;
       line-height: 1.08;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.02em;
       color: var(--ink);
       margin-bottom: 16px;
     }
 
     h1 em {
-      font-style: italic;
+      font-style: normal;
+      font-weight: 300;
       color: var(--deep);
     }
 
@@ -126,10 +91,10 @@
     }
 
     .section-num {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 11px;
       font-style: italic;
-      color: var(--gold);
+      color: var(--deep);
       letter-spacing: 0.1em;
       flex-shrink: 0;
     }
@@ -166,7 +131,6 @@
     @media (max-width: 560px) {
       .field-group.two-col { grid-template-columns: 1fr; }
       .page { padding-left: 24px; }
-      body::after { display: none; }
     }
 
     .field {
@@ -194,7 +158,7 @@
       border: none;
       border-bottom: 1px solid var(--rule);
       padding: 10px 0;
-      font-family: 'Josefin Sans', sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 13px;
       font-weight: 300;
       color: var(--ink);
@@ -243,7 +207,7 @@
     .drop-zone:hover,
     .drop-zone.drag-over {
       border-color: var(--deep);
-      background: rgba(26,46,30,0.03);
+      background: rgba(26,58,92,0.03);
     }
 
     .drop-zone input[type="file"] {
@@ -286,14 +250,14 @@
       align-items: center;
       gap: 12px;
       padding: 12px 16px;
-      background: rgba(26,46,30,0.05);
-      border: 1px solid rgba(26,46,30,0.15);
+      background: rgba(26,58,92,0.05);
+      border: 1px solid rgba(26,58,92,0.15);
       margin-top: 10px;
     }
     .file-loaded.show { display: flex; }
 
     .file-name {
-      font-family: 'Josefin Sans', sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 11px;
       color: var(--deep);
       flex: 1;
@@ -319,7 +283,7 @@
       cursor: pointer;
       padding: 4px 8px;
       transition: color 0.12s;
-      font-family: 'Josefin Sans', sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     }
     .file-clear:hover { color: var(--red); }
 
@@ -333,12 +297,12 @@
     }
 
     .naics-tag {
-      font-family: 'Josefin Sans', sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 10px;
       letter-spacing: 0.08em;
       padding: 4px 10px;
-      background: rgba(26,46,30,0.07);
-      border: 1px solid rgba(26,46,30,0.2);
+      background: rgba(26,58,92,0.07);
+      border: 1px solid rgba(26,58,92,0.2);
       color: var(--deep);
       display: flex;
       align-items: center;
@@ -369,7 +333,7 @@
     }
 
     .btn-add-naics {
-      font-family: 'Josefin Sans', sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 9px;
       letter-spacing: 0.15em;
       text-transform: uppercase;
@@ -403,8 +367,8 @@
     }
 
     .cert-item:has(input:checked) {
-      border-color: rgba(26,46,30,0.25);
-      background: rgba(26,46,30,0.04);
+      border-color: rgba(26,58,92,0.25);
+      background: rgba(26,58,92,0.04);
     }
 
     .cert-item input[type="checkbox"] {
@@ -449,9 +413,13 @@
       font-weight: 400;
     }
 
+    .accordion-toggle {
+      border-left: 3px solid var(--deep);
+    }
+
     .privacy-block {
       background: var(--surface);
-      border-left: 2px solid var(--gold);
+      border-left: 2px solid var(--deep);
       padding: 14px 18px;
       margin-bottom: 28px;
       font-size: 11px;
@@ -461,14 +429,15 @@
     }
 
     .btn-submit {
-      font-family: 'Josefin Sans', sans-serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 10px;
-      letter-spacing: 0.25em;
+      letter-spacing: 0.12em;
       text-transform: uppercase;
       padding: 16px 40px;
       background: var(--deep);
       color: var(--bg);
       border: none;
+      border-radius: 2px;
       cursor: pointer;
       transition: background 0.15s, transform 0.1s;
       display: inline-flex;
@@ -477,7 +446,7 @@
     }
 
     .btn-submit:hover:not(:disabled) {
-      background: #0d1a10;
+      background: #142f4a;
     }
 
     .btn-submit:active:not(:disabled) {
@@ -565,10 +534,10 @@
     }
 
     .success-title {
-      font-family: 'Cormorant Garamond', serif;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 32px;
-      font-weight: 300;
-      font-style: italic;
+      font-weight: 500;
+      font-style: normal;
       color: var(--deep);
       margin-bottom: 16px;
     }
@@ -583,7 +552,7 @@
     }
 
     .success-id {
-      font-family: 'Josefin Sans', monospace;
+      font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 10px;
       letter-spacing: 0.15em;
       color: var(--muted);
@@ -620,7 +589,6 @@
     /* Wix iframe height */
     @media (max-width: 480px) {
       .page { padding: 0 20px 60px; }
-      body::before { display: none; }
     }
   </style>
 </head>
@@ -629,7 +597,7 @@
 
   <!-- ── HEADER ── -->
   <header>
-    <div class="eyebrow">The Mallory Group</div>
+    <div class="eyebrow">MarketEdge</div>
     <h1>RFP Analysis <em>Request</em></h1>
     <p class="header-desc">
       Submit your federal RFP for AI-powered analysis. Receive a company fit
@@ -643,7 +611,7 @@
     <span class="success-mark">✓</span>
     <div class="success-title">Request Received</div>
     <p class="success-body">
-      Your RFP has been submitted successfully. The Mallory Group will
+      Your RFP has been submitted successfully. MarketEdge will
       deliver your analysis within three business days. Check your email
       for confirmation details.
     </p>
@@ -813,7 +781,7 @@
         <strong>What happens next:</strong> Your RFP is processed through a
         multi-agent AI pipeline that extracts requirements, maps labor
         categories to GSA schedule rates, and scores your company's fit
-        against the solicitation. The Mallory Group reviews the output and
+        against the solicitation. MarketEdge reviews the output and
         delivers a structured analysis report directly to your email within
         <strong>three business days.</strong>
       </p>
@@ -821,7 +789,7 @@
       <div class="privacy-block">
         <strong>Privacy:</strong> Your RFP and company information are
         transmitted securely to a private processing endpoint. No data is
-        shared with third parties. Documents are used solely to generate
+        shared with third parties. Documents are used solely by MarketEdge to generate
         your analysis report.
       </div>
 
@@ -843,8 +811,8 @@
   </form>
 
   <footer>
-    <span class="footer-brand">The Mallory Group — RFP Analyzer</span>
-    <span class="footer-note">themallorygroup.ai</span>
+    <span class="footer-brand">MarketEdge — RFP Budget Analyzer</span>
+    <span class="footer-note">marketedgeglobal.com</span>
   </footer>
 
 </div><!-- /page -->
