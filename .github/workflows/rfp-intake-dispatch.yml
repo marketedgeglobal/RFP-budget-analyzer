@@ -71,7 +71,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.RFP_PIPELINE_PAT }}
 
       # ── STEP 3: Install AWS CLI for R2 download ───────────────────────────
       - name: Install AWS CLI
@@ -175,7 +175,14 @@ jobs:
           SUBMISSION_ID: ${{ github.event.client_payload.submissionId || github.event.inputs.submissionId }}
           COMPANY:       ${{ github.event.client_payload.company || github.event.inputs.company }}
           RFP_FILENAME:  ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }}
+          RFP_PIPELINE_PAT: ${{ secrets.RFP_PIPELINE_PAT }}
         run: |
+          if [ -z "${RFP_PIPELINE_PAT}" ]; then
+            echo "ERROR: secrets.RFP_PIPELINE_PAT is not configured."
+            echo "A PAT is required so this push can trigger downstream workflows."
+            exit 1
+          fi
+
           git config user.name  "TMG RFP Analyzer"
           git config user.email "actions@github.com"
 
