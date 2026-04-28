@@ -133,6 +133,9 @@ Scoring rules (required):
 3. If the submitted profile shows shortfalls (for example fewer staff than required, missing certifications, or weak/no relevant past performance for required technical work), lower the score and flag the exact gap.
 4. For each scored dimension, list the specific RFP requirements evaluated (with section references) and the corresponding company evidence used to assign the score.
 5. Do not justify a score with phrasing such as "X positive signals" or "Y gap indicators" without showing the underlying requirement-to-submission comparison.
+6. If staffing or qualification coverage is materially insufficient for core scope (for example, the RFP requires paramedics, rope rescue technicians, wildland fire qualifications, and OHV operators, but the submitted profile lists only one PM and one AI Lead), Technical Capability must score very low and the rationale must explicitly show those requirement gaps.
+7. Apply the same requirement-to-profile gap method to every scored dimension, including Past Performance Relevance, Certifications and Socioeconomic, Contract Vehicle Access, and Team Capacity.
+8. Any required item with no submitted evidence must be treated as a gap unless the solicitation clearly marks it optional.
 
 Thresholds: 75–100 Strong Pursue. 60–74 Conditional Pursue. 45–59 Selective Pursue. Below 45 Pass.
 
@@ -156,6 +159,13 @@ Write in second person addressing the company directly.
 Use explicit subjects. No hyphens as sentence starters.
 Professional tone suitable for direct client delivery.
 
+Final output guardrails (required):
+- Synthesize all provided analysis into one unified document-level BD Opportunity Assessment.
+- Do not reference pipeline mechanics, chunk processing, or model workflow status.
+- Do not use phrases such as "decision-neutral in isolation", "rely on cross-chunk synthesis", "Classify this chunk as", "This chunk", or similar internal workflow instructions.
+- Do not output raw quoted RFP text as BD findings bullets. Convert evidence into synthesized insights with business interpretation.
+- Keep recommendations reader-facing for capture leadership, never pipeline-facing.
+
 ---
 
 # Capture Intelligence Brief
@@ -167,6 +177,7 @@ Analysis Date: [Today's date]
 ## BD Opportunity Assessment (Bid/No-Bid Gate Review)
 
 [Structure every section below so a capture manager can brief leadership directly at a bid/no-bid gate review.]
+[Treat this report as a single solicitation-level assessment. Do not present isolated processing fragments.]
 
 ---
 
@@ -464,6 +475,7 @@ Analysis Date: [Today's date]
 ## Proposal Response Strategy
 
 [Provide an actionable strategy a capture team can execute immediately.]
+[Do not provide internal processing steps or model workflow directions.]
 
 ### Bid / No-Bid Indicators
 [Bulleted list assessing fit, competitive position, timeline feasibility, and scope complexity.]
@@ -531,6 +543,7 @@ Analysis Date: [Today's date]
 ## BD Risk Factors
 
 [Provide evidence-backed BD risk bullets only. For each bullet include: risk statement, why it matters to bid/no-bid, and a mitigation action.]
+[Write risks as capture intelligence for leadership decisions, not as extraction notes or processing commentary.]
 
 [Only include risks that are specific to this solicitation. Every risk bullet must cite a specific RFP section/clause and explain why this language creates a meaningful pursuit risk for this opportunity in particular.]
 
@@ -611,6 +624,7 @@ If the company's past performance summary lacks sufficient detail for specific s
 
 ### Strengthen Before Submitting
 [4–6 bulleted recommendations. Each must be specific and actionable. Reference the RFP requirement or evaluation criterion each recommendation addresses. Format: **Action** — explanation and connection to evaluation criteria or competitive positioning.]
+[Each recommendation must be a real capture action a proposal team can execute, not a pipeline classification or analysis instruction.]
 
 ### Teaming Considerations
 [3–4 sentences. If gaps exist that subcontracting or teaming would address, identify the specific capability type needed, whether a prime or sub role is recommended, and what socioeconomic attributes a teaming partner should bring to strengthen competitive positioning or set-aside eligibility. If no teaming is needed, state that clearly and briefly.]
