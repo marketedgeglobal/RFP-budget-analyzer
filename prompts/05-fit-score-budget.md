@@ -1,19 +1,38 @@
-# Stage E — Fit Score & Budget Generation
-# TMG RFP Analyzer — MVP Manual Prompt
+# Stage E — Capture Intelligence Brief
+# MarketEdge RFP Budget Analyzer — MVP Manual Prompt
+# Version 2.0
+#
+# WHAT THIS PROMPT PRODUCES:
+# A complete Capture Intelligence Brief delivered directly to the
+# submitting company containing:
+#   1. Executive Summary
+#   2. Overall Fit Score (weighted dimensions)
+#   3. Technical Insights
+#   4. Key Deliverables
+#   5. Proposal Compliance Matrix
+#   6. PWS Labor Category Mapping
+#   7. Budget Estimate with Budgeting Considerations
+#   8. Proposal Lead Roles
+#   9. Win Themes (expanded with discriminators and proof points)
+#  10. Custom Past Performance Statements
+#  11. Strategic Recommendations (including proposal schedule)
 #
 # USAGE INSTRUCTIONS
 # ──────────────────
-# This prompt is run manually after the multi-agent refinement pipeline
-# completes and produces a final markdown output in rfp-markdown/generated/
+# 1. Open the Stage D refined markdown from rfp-markdown/generated/
+# 2. Open submission metadata from rfp-pdfs/SUBMISSION_ID/submission-metadata.json
+# 3. Pull company capability inputs from the admin dashboard KV record
+# 4. Replace all {{PLACEHOLDER}} blocks below with actual content
+# 5. Run this prompt in Claude (claude.ai) or GitHub Models
+# 6. Save output as rfp-markdown/generated/SUBMISSION_ID-capture-brief.md
+# 7. Update submission status to "Ready for Review" in admin dashboard
 #
-# Steps:
-#   1. Open the final refined markdown from rfp-markdown/generated/
-#   2. Open the submission metadata from rfp-pdfs/SUBMISSION_ID/submission-metadata.json
-#   3. Copy the company capability inputs from the admin dashboard or KV record
-#   4. Replace all {{PLACEHOLDER}} blocks below with actual content
-#   5. Run this prompt in Claude (claude.ai) or GitHub Models
-#   6. Save the output as rfp-markdown/generated/SUBMISSION_ID-fit-score-budget.md
-#   7. Update submission status to "Ready for Review" in admin dashboard
+# OUTPUT QUALITY NOTE:
+# Section 10 (Custom Past Performance Statements) scales directly with
+# the quality and detail of the company's past performance input.
+# If the submission's past performance summary is thin, the model will
+# produce templated statements with bracketed placeholders. Flag this
+# to the company and request richer input before finalizing.
 #
 # When automating in full product: this becomes a workflow_dispatch
 # triggered automatically after Stage D completes, reading inputs
@@ -24,14 +43,14 @@
 
 ## PROMPT — COPY EVERYTHING BELOW THIS LINE
 
-You are a senior federal proposal strategist and program management consultant with deep expertise in federal contracting, GSA schedule pricing, PWS labor category analysis, and competitive proposal development.
+You are a senior federal proposal strategist and capture manager with deep expertise in federal contracting, GSA schedule pricing, PWS labor category analysis, competitive proposal development, win theme strategy, and past performance narrative writing.
 
 You have been provided with three inputs:
 1. A refined AI analysis of a federal RFP
-2. A company's capability profile submitted with their RFP analysis request
+2. A company's capability profile submitted with their analysis request
 3. A GSA labor category rate reference
 
-Your task is to produce a structured Federal Proposal Readiness Report containing a company fit score, PWS labor category mapping, GSA-based budget estimate, and strategic narrative. This report will be delivered directly to the submitting company.
+Your task is to produce a complete Capture Intelligence Brief in the exact format specified below. Every section is required. Do not skip, combine, or reorder sections.
 
 ---
 
@@ -53,14 +72,9 @@ Submission ID: {{SUBMISSION_ID}}
 Submitted: {{SUBMITTED_AT}}
 
 NAICS Codes: {{NAICS_CODES}}
-
 Certifications: {{CERTIFICATIONS}}
-
 Contract Vehicles: {{CONTRACT_VEHICLES}}
-
-Past Performance Summary:
-{{PAST_PERFORMANCE}}
-
+Past Performance Summary: {{PAST_PERFORMANCE}}
 Team Size: {{TEAM_SIZE}}
 Key Personnel: {{KEY_PERSONNEL}}
 
@@ -87,56 +101,45 @@ Adjust for geographic location, clearance requirements, and specific GSA schedul
 
 ---
 
-## TASK
-
-Analyze the company capability profile against the RFP analysis and produce a
-Federal Proposal Readiness Report in the exact format specified below.
-
-### SCORING METHODOLOGY
+## SCORING METHODOLOGY
 
 **Overall Fit Score (0–100)**
-Weight the following dimensions:
 
 | Dimension | Weight | What to assess |
 |---|---|---|
-| Technical Capability | 30% | Does past performance and team composition match PWS technical requirements |
-| Past Performance Relevance | 25% | Agency type, contract type, dollar value, and recency alignment |
-| Certifications & Socioeconomic | 20% | Set-aside eligibility match and evaluation preference factors |
-| Contract Vehicle Access | 15% | Whether existing vehicles could be used for award or create competitive advantage |
-| Team Capacity | 10% | Whether team size and key personnel can meet period of performance demands |
+| Technical Capability | 30% | Alignment between company capabilities and PWS technical requirements |
+| Past Performance Relevance | 25% | Agency type, contract type, dollar value, and recency |
+| Certifications & Socioeconomic | 20% | Set-aside eligibility and evaluation preference factors |
+| Contract Vehicle Access | 15% | Competitive vehicle path and dispatch priority advantages |
+| Team Capacity | 10% | Team size and key personnel against period of performance demands |
 
-Score each dimension 0–100 then apply weights to produce overall score.
+Thresholds: 75–100 Strong Pursue. 60–74 Conditional Pursue. 45–59 Selective Pursue. Below 45 Pass.
 
-**Recommendation thresholds:**
-- 75–100: Strong Pursue — recommend full proposal investment
-- 60–74: Conditional Pursue — pursue with identified gap mitigation
-- 45–59: Selective Pursue — pursue only if teaming or subcontracting addresses gaps
-- Below 45: Pass — significant gaps make competitive proposal unlikely
+---
 
-### BUDGET METHODOLOGY
+## BUDGET METHODOLOGY
 
 1. Identify all labor categories explicitly or implicitly required by the PWS
-2. Estimate level of effort (hours or FTEs) per category per year based on PWS scope
-3. Apply GSA rate midpoints from the rate reference above
-4. Apply a standard wrap rate of 1.35 (fringe + overhead + G&A + fee) if rates are base salary only
+2. Estimate level of effort per category per year based on PWS scope
+3. Apply GSA rate midpoints from the reference table
+4. Apply wrap rate of 1.35 if rates are base salary only
 5. Calculate annual cost per category and total contract value across full period of performance
-6. Flag any categories where the company's team profile suggests a gap
+6. Flag categories where the company profile suggests a gap
 
 ---
 
 ## OUTPUT FORMAT
 
-Produce the report in the following exact markdown structure.
-Do not add sections. Do not remove sections.
+Produce the brief in the following exact markdown structure.
 Write in second person addressing the company directly.
 Use explicit subjects. No hyphens as sentence starters.
 Professional tone suitable for direct client delivery.
 
 ---
 
-# Federal Proposal Readiness Report
+# Capture Intelligence Brief
 **{{COMPANY_NAME}}**
-Prepared by The Mallory Group
+Prepared by MarketEdge RFP Budget Analyzer
 Submission ID: {{SUBMISSION_ID}}
 Analysis Date: [Today's date]
 
@@ -144,7 +147,7 @@ Analysis Date: [Today's date]
 
 ## Executive Summary
 
-[2–3 sentences summarizing the overall fit, recommendation, and one primary strength and one primary gap. Written to be the first thing a BD lead reads.]
+[3–4 sentences. Summarize the overall fit score, primary recommendation label, the single strongest alignment, and the single most critical gap or risk. Written for a BD lead who reads nothing else. Include the numeric score and recommendation label explicitly.]
 
 ---
 
@@ -163,41 +166,56 @@ Analysis Date: [Today's date]
 
 ---
 
-## Dimension Analysis
+## Technical Insights
 
-### Technical Capability
-[3–4 sentences. Specific alignment between company capabilities and PWS technical requirements.
-Reference specific PWS sections or requirements where possible. Identify the strongest alignment
-and the most significant technical gap.]
+[4–6 sentences on the core technical challenge this RFP addresses, the domain expertise most critical to win, the technical differentiators this agency would value, and the technical risks embedded in the PWS. Reference specific PWS sections where relevant.]
 
-### Past Performance Relevance
-[3–4 sentences. Assess agency type match, contract type match, dollar value comparability,
-and recency. Flag if past performance summary lacks specifics needed for a competitive
-volume.]
+**Key Technical Requirements:**
+[Bulleted list of 5–8 specific technical requirements from the PWS. Each bullet states the requirement and its source section in one sentence.]
 
-### Certifications & Socioeconomic Status
-[2–3 sentences. Assess set-aside eligibility if applicable. Note any evaluation preference
-factors the company qualifies for. Flag if no relevant certifications apply.]
+**Technical Risk Flags:**
+[Bulleted list of 2–4 technical risks a proposer must address — ambiguous requirements, aggressive timelines, integration dependencies, environmental or operational constraints, or compliance obligations that add execution complexity.]
 
-### Contract Vehicle Access
-[2–3 sentences. Assess whether existing vehicles provide a competitive vehicle path.
-Flag if no applicable vehicle exists and open market competition is required.]
+---
 
-### Team Capacity
-[2–3 sentences. Assess whether stated team size and key personnel can realistically
-staff the period of performance. Flag any capacity risk.]
+## Key Deliverables
+
+[1–2 sentences on the deliverables landscape for this contract and what they signal about agency oversight expectations.]
+
+| Deliverable | PWS Reference | Frequency | Acceptance Criteria | Risk Level |
+|---|---|---|---|---|
+| [Deliverable name] | [Section] | [Monthly/Quarterly/At milestone/etc.] | [Who accepts and how] | [Low/Med/High] |
+
+**Deliverables Note:**
+[1–2 sentences flagging any deliverable that represents unusual burden, unclear acceptance criteria, or a potential source of contract disputes or payment delays.]
+
+---
+
+## Proposal Compliance Matrix
+
+[1 sentence introducing the matrix. Note that this is derived from AI analysis and must be reviewed against the full solicitation before submission.]
+
+| Requirement | Source Section | Proposal Volume | Compliant Y/N | Action Required |
+|---|---|---|---|---|
+| [Requirement statement] | [Section ref] | [Technical/Management/Past Perf/Price/All] | Y/N/TBD | [Action if TBD or N — leave blank if Y] |
+
+[Include minimum 15 rows covering: evaluation criteria, technical requirements, past performance requirements, certifications, representations and certifications, submission format requirements, and compliance obligations from incorporated FAR clauses.]
+
+**Compliance Gaps:**
+[Bulleted list of requirements the company cannot currently meet based on their capability profile. Each bullet states the gap and a specific mitigation — teaming, hiring, certification pursuit, or waiver request.]
 
 ---
 
 ## PWS Labor Category Mapping
 
-| Labor Category | PWS Reference | Estimated FTEs | Seniority Level | Annual Rate (Mid) | Notes |
+[1–2 sentences on the labor structure implied by the PWS scope and period of performance.]
+
+| Labor Category | PWS Reference | Estimated FTEs | Seniority Level | Annual Rate (Mid) | Status |
 |---|---|---|---|---|---|
-| [Category] | [PWS Section] | [X FTE] | [Junior/Mid/Senior] | $[X]K | [Gap/Aligned/TBD] |
+| [Category] | [PWS Section] | [X FTE] | [Junior/Mid/Senior] | $[X]K | [Aligned/Gap/TBD] |
 
 **Labor Category Notes:**
-[Bulleted list of any significant observations — missing categories, seniority mismatches,
-clearance requirements, or categories the company should hire or subcontract to fill.]
+[Bulleted list of significant observations — missing categories, seniority mismatches, clearance requirements, and specific categories the company should hire or subcontract to fill before submission.]
 
 ---
 
@@ -205,6 +223,7 @@ clearance requirements, or categories the company should hire or subcontract to 
 
 **Period of Performance:** [X years / X months — from RFP]
 **Contract Type:** [FFP / T&M / CPFF — from RFP]
+**Contract Vehicle:** [I-BPA / IDIQ / open market / etc.]
 
 | Labor Category | Seniority | FTEs | Annual Cost | Base Period | Option Year 1 | Option Year 2 |
 |---|---|---|---|---|---|---|
@@ -213,46 +232,125 @@ clearance requirements, or categories the company should hire or subcontract to 
 
 **Total Estimated Contract Value: $[X]M**
 
-> This budget estimate is based on GSA schedule rate midpoints and estimated
-> level of effort derived from PWS analysis. Treat as a planning estimate only.
-> Actual proposal pricing requires detailed work breakdown structure analysis,
-> site-specific overhead rates, and current GSA schedule verification.
+### Budgeting Considerations
+
+[Address each of the following in 1–2 sentences each:
+- Primary cost drivers that will most affect the final price
+- Indirect rate assumptions embedded in this estimate and where they may need adjustment
+- Other direct costs beyond labor — travel, equipment, materials, subcontractor costs, consumables
+- Fee strategy appropriate for this contract type and agency
+- Price-to-win pressure based on evaluation criteria weighting and set-aside competition
+- Labor escalation across option years and how to reflect it
+- Any unusual payment terms, invoicing requirements, or withholding provisions from the solicitation]
+
+> This budget estimate is based on GSA schedule rate midpoints and estimated level of effort derived from PWS analysis. Treat as a planning estimate. Actual proposal pricing requires detailed work breakdown structure analysis, site-specific overhead rates, and current GSA schedule verification.
+
+---
+
+## Proposal Lead Roles
+
+[2 sentences on the proposal team structure recommended for this opportunity based on its size, complexity, and evaluation criteria weighting.]
+
+| Role | Responsibility | Time Commitment | Required Expertise |
+|---|---|---|---|
+| Capture Manager | [Specific responsibility for this RFP] | [% of FTE during proposal period] | [Domain expertise required] |
+| Proposal Manager | [Specific responsibility] | [% of FTE] | [Expertise required] |
+| Technical Volume Lead | [Specific responsibility] | [% of FTE] | [Expertise required] |
+| Management Volume Lead | [Specific responsibility] | [% of FTE] | [Expertise required] |
+| Past Performance Lead | [Specific responsibility] | [% of FTE] | [Expertise required] |
+| Pricing Analyst | [Specific responsibility] | [% of FTE] | [Expertise required] |
+| [Additional role if warranted by RFP complexity] | [Responsibility] | [% of FTE] | [Expertise required] |
+
+**Critical Role Note:**
+[2–3 sentences identifying the single most critical proposal role for this specific RFP and why. Reference the evaluation criteria weighting or specific technical domain that drives this assessment.]
+
+---
+
+## Win Themes
+
+[2–3 sentences on win theme strategy for this RFP. Describe what this agency values most based on evaluation criteria language and solicitation tone, and what narrative frame gives this company the strongest competitive positioning.]
+
+**Theme 1: [Theme Title]**
+Discriminator: [What makes this theme competitively distinctive — a strength the agency values that competitors cannot easily claim or replicate]
+Proof Point: [Specific past performance, certification, or capability from the company profile that substantiates this theme with concrete evidence]
+Placement: [Where in the proposal this theme should be most prominent — technical approach, management plan, executive summary, past performance, or all volumes]
+
+**Theme 2: [Theme Title]**
+Discriminator: [Discriminator]
+Proof Point: [Proof point from company profile]
+Placement: [Proposal placement]
+
+**Theme 3: [Theme Title]**
+Discriminator: [Discriminator]
+Proof Point: [Proof point from company profile]
+Placement: [Proposal placement]
+
+**Theme Integration Note:**
+[2 sentences on how to thread all three themes consistently across proposal volumes rather than siloing them in the executive summary. Include one specific technique for maintaining theme continuity in a multi-author proposal.]
+
+---
+
+## Custom Past Performance Statements
+
+[1–2 sentences on how past performance will be evaluated for this RFP, what the agency is looking for, and the recency and relevance standards implied by the solicitation.]
+
+[For each relevant past performance example in the company's submitted profile, produce a tailored statement structured as follows:
+- Contract name, agency, and contract number if available
+- Dollar value and period of performance
+- Technical work performed using language that mirrors this RFP's evaluation criteria
+- Quantified outcomes wherever the submitted profile provides data
+- Closing sentence connecting this experience to a specific requirement in the current RFP
+
+If the company's past performance summary lacks sufficient detail for specific statements, produce a template with [BRACKETED PLACEHOLDERS] and flag this explicitly in the Past Performance Quality Note below.]
+
+**Past Performance Statement 1:**
+[Draft statement or templated version with bracketed placeholders]
+
+**Past Performance Statement 2:**
+[Draft statement or templated version with bracketed placeholders]
+
+**Past Performance Statement 3:**
+[Draft statement or templated version — add additional statements if the profile warrants it]
+
+**Past Performance Quality Note:**
+[Honest assessment of whether the submitted past performance summary provides sufficient detail for a competitive past performance volume. If gaps exist, list specifically what additional information — contract numbers, dollar values, agency names, quantified outcomes, points of contact — the company should provide before the past performance volume is written.]
 
 ---
 
 ## Strategic Recommendations
 
 ### Pursue Decision
-[1–2 sentences with a clear pursue / conditional pursue / selective pursue / pass
-recommendation and the single most important factor driving it.]
+[2 sentences with a clear pursue / conditional pursue / selective pursue / pass recommendation and the two most important factors driving it. Be direct.]
 
 ### Strengthen Before Submitting
-[3–5 bulleted recommendations. Each must be specific and actionable.
-Reference the RFP requirement each recommendation addresses.
-Format: **Action** — explanation.]
+[4–6 bulleted recommendations. Each must be specific and actionable. Reference the RFP requirement or evaluation criterion each recommendation addresses. Format: **Action** — explanation and connection to evaluation criteria or competitive positioning.]
 
 ### Teaming Considerations
-[2–3 sentences. If gaps exist that subcontracting or teaming would address,
-identify the capability type needed and whether a prime or sub role is recommended.
-If no teaming is needed, state that clearly.]
+[3–4 sentences. If gaps exist that subcontracting or teaming would address, identify the specific capability type needed, whether a prime or sub role is recommended, and what socioeconomic attributes a teaming partner should bring to strengthen competitive positioning or set-aside eligibility. If no teaming is needed, state that clearly and briefly.]
 
-### Win Theme Candidates
-[2–3 bulleted win themes derived from the company's strongest alignments with
-the RFP evaluation criteria. These are starting points for proposal narrative,
-not finished themes.]
+### Proposal Schedule
+**RFP Due Date:** [Due date from solicitation]
+
+| Milestone | Recommended Date | Notes |
+|---|---|---|
+| Capture kick-off | [Date] | [Any prep required before this] |
+| Outline and section assignments | [Date] | |
+| SME input due | [Date] | |
+| Pink team review | [Date] | [Focus areas for this RFP] |
+| Red team review | [Date] | [Focus areas for this RFP] |
+| Final review and compliance check | [Date] | |
+| Submission | [Due date] | [Submission method from solicitation] |
+
+**Schedule Risk:**
+[1–2 sentences on any timeline risk given the RFP complexity, company team size, and time remaining before the due date. Flag if the timeline is tight and recommend what to descope or deprioritize if resources are constrained.]
 
 ---
 
 ## Disclaimer
 
-This report was generated by The Mallory Group using AI-assisted RFP analysis
-and is intended as a proposal planning tool. All scores, budget estimates, and
-recommendations are estimated based on the information provided and publicly
-available RFP content. The Mallory Group makes no warranty regarding proposal
-outcomes. Verify all pricing against current GSA schedule rates and agency-specific
-requirements before submission.
+This brief was generated by the MarketEdge RFP Budget Analyzer using AI-assisted RFP analysis and is intended as a capture planning and proposal development tool. All scores, budget estimates, compliance assessments, win themes, and recommendations are derived from the information provided and publicly available RFP content. MarketEdge makes no warranty regarding proposal outcomes or award decisions. Verify all pricing against current GSA schedule rates and agency-specific requirements before submission.
 
-*The Mallory Group — themallorygroup.ai*
+*MarketEdge — marketedgeglobal.com*
 
 ---
 
@@ -261,16 +359,29 @@ requirements before submission.
 ---
 
 # DELIVERY CHECKLIST
-# (for Ross — remove before sending to company)
+# (Internal use only — remove this entire section before sending to company)
 #
+# PRE-DELIVERY CHECKS:
 # [ ] Submission ID matches KV record
 # [ ] Company name spelled correctly throughout
-# [ ] All {{PLACEHOLDER}} values replaced — none remaining
-# [ ] Budget totals cross-check (row sums match column totals)
+# [ ] Zero instances of "The Mallory Group" or "TMG" in output
+# [ ] All {{PLACEHOLDER}} values replaced — search for {{ to confirm none remain
+# [ ] Compliance matrix has minimum 15 rows
+# [ ] Win theme proof points reference specific company profile content
+# [ ] Past performance statements use RFP evaluation criteria language
+# [ ] Budget totals cross-check — row sums match column totals
 # [ ] Recommendation label matches score threshold
-# [ ] Disclaimer present at bottom
-# [ ] Save output as: rfp-markdown/generated/SUBMISSION_ID-fit-score-budget.md
+# [ ] Proposal schedule milestone dates calculated from actual RFP due date
+# [ ] Disclaimer references MarketEdge not TMG
+# [ ] Past Performance Quality Note is honest — thin input flagged clearly
+#
+# FILE MANAGEMENT:
+# [ ] Save output as: rfp-markdown/generated/SUBMISSION_ID-capture-brief.md
 # [ ] Update KV status to "Ready for Review" via admin dashboard
-# [ ] Review report once as if you are the company receiving it
-# [ ] Deliver to contact email with subject: "RFP Analysis — [Company Name] — [RFP Title]"
+# [ ] Read the brief once as the company's capture manager receiving it
+# [ ] Confirm no checklist items or internal notes visible in final output
+#
+# DELIVERY:
+# [ ] Email subject: "Capture Intelligence Brief — [Company Name] — [RFP Number]"
 # [ ] Update KV status to "Delivered" after sending
+# [ ] Log output quality observations for prompt refinement
