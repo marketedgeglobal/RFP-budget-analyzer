@@ -7,18 +7,21 @@
 # submitting company containing:
 #   1. Executive Summary
 #   2. Opportunity Summary
-#   3. Evaluation Criteria and Weightings
-#   4. Overall Fit Score (weighted dimensions)
-#   5. Technical Insights
-#   6. Key Deliverables
-#   7. Proposal Compliance Matrix
-#   8. PWS Labor Category Mapping
-#   9. Budget Estimate with Budgeting Considerations
-#  10. Proposal Lead Roles
-#  11. Competitive Landscape and BD Risk Factors
-#  12. Win Themes (expanded with discriminators and proof points)
-#  13. Custom Past Performance Statements
-#  14. Strategic Recommendations (including proposal schedule)
+#   3. Requirements Extraction
+#   4. Evaluation Criteria and Weightings
+#   5. Overall Fit Score (weighted dimensions)
+#   6. Technical Insights
+#   7. Key Deliverables
+#   8. Proposal Compliance Matrix
+#   9. PWS Labor Category Mapping
+#  10. Budget Estimate with Budgeting Considerations
+#  11. Proposal Lead Roles
+#  12. Compliance Obligations and Submission Requirements
+#  13. Competitive Landscape Indicators
+#  14. BD Risk Factors
+#  15. Win Themes (expanded with discriminators and proof points)
+#  16. Custom Past Performance Statements
+#  17. Strategic Recommendations (including proposal schedule)
 #
 # USAGE INSTRUCTIONS
 # ──────────────────
@@ -31,7 +34,7 @@
 # 7. Update submission status to "Ready for Review" in admin dashboard
 #
 # OUTPUT QUALITY NOTE:
-# Section 10 (Custom Past Performance Statements) scales directly with
+# Section 16 (Custom Past Performance Statements) scales directly with
 # the quality and detail of the company's past performance input.
 # If the submission's past performance summary is thin, the model will
 # produce templated statements with bracketed placeholders. Flag this
@@ -156,28 +159,66 @@ Analysis Date: [Today's date]
 
 ## Opportunity Summary
 
-[Summarize the opportunity in a compact decision-ready format. Include agency/customer, contract type, NAICS, set-aside status, period of performance, estimated or ceiling value, and key dates if stated.]
+[Summarize the opportunity in a compact decision-ready format using the exact fields below. If a field is not found, write "Not stated in provided text" and do not guess.]
 
 | Field | Value | Source Reference |
 |---|---|---|
+| Solicitation Number | [Value] | [Section] |
 | Agency / Customer | [Value] | [Section] |
+| Contracting Office | [Value] | [Section] |
 | Contract Type | [FFP / T&M / CPFF / etc.] | [Section] |
 | NAICS | [Code and title] | [Section] |
+| Size Standard | [Employee/revenue threshold] | [Section] |
 | Set-Aside | [Type or None stated] | [Section] |
+| Solicitation Type | [RFP/RFQ/Sources Sought/BAA/etc.] | [Section] |
 | Period of Performance | [Base/Options, dates or duration] | [Section] |
 | Estimated Value | [$ value, range, or Not stated] | [Section] |
-| Solicitation Number | [Value] | [Section] |
+| Place of Performance | [Location(s)] | [Section] |
+| Remote / Onsite Requirements | [Requirement] | [Section] |
 | Response Due Date | [Date/time/time zone] | [Section] |
+| Q&A Deadline | [Date/time/time zone or Not stated] | [Section] |
+
+---
+
+## Requirements Extraction
+
+[Provide extraction in the structure below. Use explicit section references for each item.]
+
+**Mandatory Qualifications and Eligibility Gates:**
+[Bulleted list of disqualifying or mandatory requirements including certifications, clearances, licenses, past performance thresholds, and revenue minimums.]
+
+**Technical Requirements by PWS Section:**
+[Bulleted list grouped by PWS section identifier.]
+
+**Key Deliverables:**
+[Bulleted list with deliverable, due date or frequency, and acceptance criteria when stated.]
+
+**Reporting Requirements:**
+[Bulleted list including weekly, monthly, ad hoc, dashboard, or data-call requirements.]
+
+**Staffing and Key Personnel Requirements:**
+[Bulleted list of required positions, qualifications, certifications/clearances, and whether resumes are required at proposal submission.]
+
+**Special Requirements:**
+[Bulleted list including travel, security/facility clearances, equipment, vehicles, uniforms, or other special conditions.]
 
 ---
 
 ## Evaluation Criteria and Weightings
 
-[Summarize how the agency will evaluate offers. Include stated factors, subfactors, and any explicit weighting, order of importance, adjectival language, or tradeoff method.]
+[Summarize evaluation exactly as stated in Section M (or equivalent).]
 
-| Evaluation Factor | Weight / Importance | Notes for Capture Strategy | Source Reference |
-|---|---|---|---|
-| [Factor] | [Weight or relative rank] | [What this means for your response] | [Section] |
+| Evaluation Factor | Weight / Importance | Relative to Price | Pass/Fail Gate | Notes for Capture Strategy | Source Reference |
+|---|---|---|---|---|---|
+| [Factor] | [Weight or relative rank] | [More/Equal/Less than price] | [Yes/No] | [What this means for your response] | [Section] |
+
+**Evaluation Method Notes:**
+[Bulleted list that explicitly addresses:]
+- Factor order of importance as stated
+- Whether factors are most important, equally important, or less important than price
+- Any pass/fail screening criteria before technical scoring
+- Past performance evaluation method (CPARS, references, recency/relevancy thresholds)
+- Oral presentation requirement and its role in evaluation
 
 ---
 
@@ -245,7 +286,7 @@ Analysis Date: [Today's date]
 | [Category] | [PWS Section] | [X FTE] | [Junior/Mid/Senior] | $[X]K | [Aligned/Gap/TBD] |
 
 **Labor Category Notes:**
-[Bulleted list of significant observations — missing categories, seniority mismatches, clearance requirements, and specific categories the company should hire or subcontract to fill before submission.]
+[Bulleted list of significant observations including: missing categories, seniority mismatches, clearance requirements, labor-category substitution restrictions/approval requirements, SCA/Davis-Bacon/union applicability, and subcontracting or pass-through limitations.]
 
 ---
 
@@ -296,24 +337,67 @@ Analysis Date: [Today's date]
 
 ---
 
-## Competitive Landscape and BD Risk Factors
+## Compliance Obligations and Submission Requirements
+
+[Summarize compliance and submission obligations with emphasis on material performance and proposal compliance impact.]
+
+**Material FAR/DFARS Clauses:**
+[Bulleted list of clauses with significant performance implications. Do not list boilerplate without impact context.]
+
+**Submission-Time Certifications and Registrations:**
+[Bulleted list including SAM.gov status, reps/certs, and socioeconomic certifications required at submission.]
+
+**Proposal Format and Packaging Rules:**
+[Bulleted list including page limits, font rules, volume structure, file naming, portal/upload requirements, and deadline/time-zone constraints.]
+
+**Teaming/Subcontracting Plan Requirements:**
+[Bulleted list of any required plans, percentages, or documentation.]
+
+**Nonstandard Clause Flags:**
+[Bulleted list of unusual clauses that deviate from common FAR practice and why they matter.]
+
+---
+
+## Competitive Landscape Indicators
 
 [2–3 sentences summarizing competitive posture and whether this looks open, protected, or incumbent-favored.]
 
 | Indicator | Evidence from Solicitation | BD Impact | Recommended Action |
 |---|---|---|---|
 | Incumbent Advantage | [Transition language, incumbent references, existing environment specifics] | [Impact to win probability] | [Action] |
+| Pre-Solicitation Activity | [Industry day, pre-proposal conference, sources sought history] | [Impact] | [Action] |
 | Sole-Source or Limited Competition Signals | [Evidence] | [Impact] | [Action] |
+| Brand Name or Equal Constraints | [Evidence] | [Impact] | [Action] |
 | Timeline Realism | [Proposal window, transition deadlines, staffing start constraints] | [Impact] | [Action] |
 | Bundling / Scope Compression | [Multi-domain requirements or oversized scope] | [Impact] | [Action] |
+| Preferred Solution Bias | [Language favoring a specific approach/vendor] | [Impact] | [Action] |
 
 [If evidence is absent for any indicator, state "No clear indicator in provided text" rather than guessing.]
 
 ---
 
+## BD Risk Factors
+
+[Provide evidence-backed BD risk bullets only. For each bullet include: risk statement, why it matters to bid/no-bid, and a mitigation action.]
+
+[Assess at minimum:]
+- Unrealistic POP or transition timeline relative to scope complexity
+- Vague or unstated evaluation criteria that reduce predictability
+- Unusual intellectual property or data-rights clauses
+- Overly restrictive qualifications limiting competition
+- Short response timeline relative to proposal complexity
+- Geographic/facility constraints limiting eligible offerors
+- Price-evaluation methodology that may disadvantage higher-quality technical approaches
+
+---
+
 ## Win Themes
 
-[2–3 sentences on win theme strategy for this RFP. Describe what this agency values most based on evaluation criteria language and solicitation tone, and what narrative frame gives this company the strongest competitive positioning.]
+[2–3 sentences on win theme strategy for this RFP. Provide three to five themes based on evaluator priorities and PWS emphasis.]
+
+[Each theme must connect an agency pain point implied by the solicitation to a discriminating capability a strong offeror would demonstrate.]
+
+[Explicitly identify solicitation hot-button issues such as prior performance failures, schedule pressure, transition risk, or specific technical pain points the agency calls out.]
 
 **Theme 1: [Theme Title]**
 Discriminator: [What makes this theme competitively distinctive — a strength the agency values that competitors cannot easily claim or replicate]
@@ -331,7 +415,7 @@ Proof Point: [Proof point from company profile]
 Placement: [Proposal placement]
 
 **Theme Integration Note:**
-[2 sentences on how to thread all three themes consistently across proposal volumes rather than siloing them in the executive summary. Include one specific technique for maintaining theme continuity in a multi-author proposal.]
+[2 sentences on how to thread all themes consistently across proposal volumes rather than siloing them in the executive summary. Include one specific technique for maintaining theme continuity in a multi-author proposal.]
 
 ---
 
