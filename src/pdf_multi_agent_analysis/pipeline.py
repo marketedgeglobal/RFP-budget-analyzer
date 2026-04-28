@@ -14,111 +14,131 @@ from .converter import pdf_to_markdown
 FINAL_OUTPUT_DIR = Path("rfp-markdown/generated")
 AUDIT_ROOT_DIR = Path("rfp-markdown/audit")
 
-SCORECARD_CATEGORIES: list[tuple[str, tuple[str, ...], tuple[str, ...]]] = [
-    (
-        "Confidentiality obligations",
-        (
-            "confidential",
-            "confidentiality",
-            "confidential information",
-            "proprietary",
-            "proprietary information",
-            "non-disclosure",
-            "nondisclosure",
-            "trade secret",
+BD_SCORE_DIMENSIONS: list[dict[str, object]] = [
+    {
+        "name": "Technical Capability",
+        "weight": 30,
+        "positive_terms": (
+            "performance work statement",
+            "pws",
+            "technical approach",
+            "quality control",
+            "deliverable",
+            "methodology",
+            "task order",
+            "statement of work",
+            "scope",
         ),
-        ("breach", "disclose", "unauthorized", "injunct", "damages"),
-    ),
-    (
-        "Liability and indemnification",
-        ("liability", "liable", "indemn", "hold harmless", "damages", "losses"),
-        ("unlimited", "any and all", "consequential", "punitive", "gross negligence"),
-    ),
-    (
-        "Termination rights",
-        ("terminate", "termination", "term", "survive", "expiration"),
-        ("immediate", "for convenience", "without cause", "material breach"),
-    ),
-    (
-        "Intellectual property",
-        ("intellectual property", "ip", "ownership", "license", "derivative"),
-        ("irrevocable", "perpetual", "assign", "exclusive", "royalty-free"),
-    ),
-    (
-        "Jurisdiction and governing law",
-        ("governing law", "jurisdiction", "venue", "arbitration", "forum"),
-        ("exclusive", "waive", "foreign", "mandatory", "binding"),
-    ),
-    (
-        "Data protection and security",
-        ("data", "security", "privacy", "personal information", "breach notification"),
-        ("incident", "access", "encrypt", "compliance", "unauthorized"),
-    ),
+        "negative_terms": (
+            "ambiguous",
+            "unclear",
+            "contradict",
+            "conflict",
+            "not stated",
+            "gap",
+        ),
+    },
+    {
+        "name": "Past Performance Relevance",
+        "weight": 25,
+        "positive_terms": (
+            "past performance",
+            "cpars",
+            "relevancy",
+            "recency",
+            "reference",
+            "similar scope",
+        ),
+        "negative_terms": (
+            "minimum of",
+            "within the last",
+            "must demonstrate",
+            "required examples",
+            "same or similar",
+        ),
+    },
+    {
+        "name": "Certifications and Socioeconomic",
+        "weight": 20,
+        "positive_terms": (
+            "small business",
+            "set-aside",
+            "8(a)",
+            "hubzone",
+            "sdvosb",
+            "wosb",
+            "certification",
+            "sam registration",
+        ),
+        "negative_terms": (
+            "ineligible",
+            "size standard",
+            "excluding",
+            "must be certified",
+            "disqual",
+        ),
+    },
+    {
+        "name": "Contract Vehicle Access",
+        "weight": 15,
+        "positive_terms": (
+            "contract vehicle",
+            "idiq",
+            "bpa",
+            "schedule",
+            "gwac",
+            "naics",
+            "ordering period",
+        ),
+        "negative_terms": (
+            "vehicle holder",
+            "restricted",
+            "incumbent",
+            "only",
+            "limited to",
+        ),
+    },
+    {
+        "name": "Team Capacity",
+        "weight": 10,
+        "positive_terms": (
+            "key personnel",
+            "resume",
+            "labor category",
+            "fte",
+            "hours",
+            "transition",
+            "mobilization",
+            "clearance",
+            "staffing",
+        ),
+        "negative_terms": (
+            "within 15 days",
+            "within 30 days",
+            "immediate",
+            "hard-to-fill",
+            "scarce",
+            "high risk",
+        ),
+    },
 ]
 
-RISK_ORDER = {"HIGH": 3, "MEDIUM": 2, "LOW": 1, "NOT FOUND": 0}
-
-MUTUAL_PROTECTIVE_TERMS: tuple[str, ...] = (
-    "mutual",
-    "each party",
-    "both parties",
-    "reasonable care",
-    "commercially reasonable",
-    "except as required by law",
-    "confidential information shall not include",
+RECOMMENDATION_BANDS: tuple[tuple[int, str], ...] = (
+    (75, "Strong Pursue"),
+    (60, "Conditional Pursue"),
+    (45, "Selective Pursue"),
+    (0, "Pass"),
 )
 
-ONE_SIDED_TERMS: tuple[str, ...] = (
-    "sole discretion",
-    "solely by",
-    "unilateral",
-    "exclusive remedy",
-    "receiving party shall",
+BD_ISSUE_BONUS_TERMS: tuple[tuple[tuple[str, ...], int], ...] = (
+    (("disqual", "ineligible", "mandatory", "must have"), 4),
+    (("incumbent", "brand-name", "sole source", "restricted"), 3),
+    (("cost realism", "ceiling", "nte", "budget"), 3),
+    (("transition", "mobilization", "key personnel", "clearance"), 2),
+    (("unclear", "ambiguous", "conflict", "contradict"), 2),
 )
 
-GAP_TERMS: tuple[str, ...] = (
-    "missing",
-    "not stated",
-    "not specified",
-    "silent",
-    "unclear",
-    "not provided",
-)
-
-CATEGORY_PROTECTIVE_TERMS: dict[str, tuple[str, ...]] = {
-    "Confidentiality obligations": (
-        "no less than reasonable care",
-        "confidential information shall not include",
-        "required by applicable law",
-    ),
-    "Liability and indemnification": (
-        "no liability",
-        "limited liability",
-        "except for",
-    ),
-    "Termination rights": (
-        "for material breach",
-        "written notice",
-        "cure period",
-    ),
-    "Intellectual property": (
-        "remains the property",
-        "no license",
-        "sole property",
-    ),
-    "Jurisdiction and governing law": (
-        "non-exclusive",
-        "mutual consent",
-        "good faith",
-    ),
-    "Data protection and security": (
-        "reasonable safeguards",
-        "industry standard",
-        "security measures",
-    ),
-}
-
-DEFAULT_FIRST_SECTION_HEADING = "Definitions and Interpretation"
+DEFAULT_FIRST_SECTION_HEADING = "Opportunity Scope"
 
 PIPELINE_STAGE_LABELS: tuple[str, ...] = (
     "Stage C Final Markdown",
@@ -426,12 +446,12 @@ def _extract_synth_list(synth_content: str, heading: str) -> list[str]:
 def _topic_from_legal_risk(text: str) -> str | None:
     lowered = text.lower()
     topics: list[tuple[str, tuple[str, ...]]] = [
-        ("Confidentiality and Information Use", ("confidential", "proprietary", "disclos", "non-disclosure", "nondisclosure")),
-        ("Liability and Indemnification", ("liability", "liable", "indemn", "damages", "hold harmless")),
-        ("Termination and Survival", ("terminate", "termination", "survive", "expiration", "for convenience")),
-        ("Data Protection and Security", ("data", "privacy", "security", "personal information", "breach notification")),
-        ("Governing Law and Disputes", ("governed by", "governing law", "jurisdiction", "venue", "arbitration", "forum")),
-        ("Remedies and Enforcement", ("injunct", "equitable", "specific performance", "waive", "waiver")),
+        ("Opportunity Summary", ("solicitation", "agency", "contract type", "naics", "set-aside", "response due")),
+        ("Evaluation and Win Strategy", ("section m", "evaluation", "factor", "tradeoff", "best value", "lpta")),
+        ("Requirements and Deliverables", ("pws", "statement of work", "deliverable", "reporting", "technical")),
+        ("Staffing and Transition", ("key personnel", "labor category", "fte", "transition", "mobilization", "clearance")),
+        ("Pricing and Price to Win", ("price", "cost", "ceiling", "budget", "ige", "cost realism")),
+        ("Teaming and Competitive Position", ("incumbent", "teaming", "joint venture", "mentor protege", "subcontracting")),
     ]
 
     best_topic: str | None = None
@@ -632,12 +652,12 @@ def _build_sectioned_analysis_report(
 
         lines.append(f"## {section_name}")
         lines.append("")
-        lines.append("### Legal Risk Findings")
+        lines.append("### BD Findings")
         if legal_risks:
             for risk in legal_risks:
                 lines.append(f"- {risk}")
         else:
-            lines.append("- No explicit obligation or risk clauses were identified in this section.")
+            lines.append("- No explicit BD gate signals were identified in this section.")
 
         lines.append("")
         section_takeaways: list[str] = []
@@ -836,20 +856,19 @@ def _build_contract_description(contract_type: str, analysis_report: str) -> lis
 
 def _score_issue_line(line: str) -> int:
     lowered = line.lower()
-    score = 0
-    if any(term in lowered for term in ("unlimited", "any and all", "exclusive", "irrevocable", "immediate", "injunct", "indemn")):
-        score += 3
-    if any(term in lowered for term in ("liable", "liability", "termination", "breach", "damages", "waive", "personal information")):
-        score += 2
-    if any(term in lowered for term in ("shall", "must", "will", "obligation", "required")):
+    score = 1
+    for terms, points in BD_ISSUE_BONUS_TERMS:
+        if any(term in lowered for term in terms):
+            score += points
+    if any(term in lowered for term in ("shall", "must", "required", "mandatory")):
         score += 1
     return score
 
 
 def _issue_risk_label(score: int) -> str:
-    if score >= 5:
+    if score >= 7:
         return "HIGH"
-    if score >= 3:
+    if score >= 4:
         return "MEDIUM"
     return "LOW"
 
@@ -860,7 +879,11 @@ def _collect_issue_lines(issues_report: str) -> list[str]:
     for line in lines:
         if line.startswith("- "):
             collected.append(line[2:].strip())
-        elif line and not line.startswith("#") and line.lower() != "potential obligations/risks:":
+        elif line and not line.startswith("#") and line.lower() not in (
+            "potential obligations/risks:",
+            "potential bd issues:",
+            "no explicit bd gate signals were detected in this chunk.",
+        ):
             collected.append(line)
     deduped: list[str] = []
     seen: set[str] = set()
@@ -879,78 +902,52 @@ def _build_scorecard(analysis_report: str, issues_report: str) -> tuple[str, str
     sentences = _extract_sentences(full_text)
     score_rows: list[dict[str, str]] = []
 
-    for category, primary_terms, elevated_terms in SCORECARD_CATEGORIES:
-        matching_sentences = [
-            sentence
-            for sentence in sentences
-            if _contains_any_term(sentence, primary_terms)
-        ]
-        if not matching_sentences:
-            score_rows.append(
-                {
-                    "category": category,
-                    "risk": "NOT FOUND",
-                    "confidence": "LOW",
-                    "rationale": "No supporting contract text detected for this category; treat as a missing clause gap.",
-                }
-            )
-            continue
+    for dimension in BD_SCORE_DIMENSIONS:
+        dimension_name = str(dimension["name"])
+        weight = int(dimension["weight"])
+        positive_terms = tuple(str(term) for term in dimension["positive_terms"])
+        negative_terms = tuple(str(term) for term in dimension["negative_terms"])
 
-        sentence_hits = len(matching_sentences)
-        elevated_hits = sum(
-            1
-            for sentence in matching_sentences
-            if _contains_any_term(sentence, elevated_terms)
-        )
-        protective_terms = CATEGORY_PROTECTIVE_TERMS.get(category, ())
-        protective_hits = sum(1 for sentence in matching_sentences if _contains_any_term(sentence, protective_terms))
-        mutual_hits = sum(1 for sentence in matching_sentences if _contains_any_term(sentence, MUTUAL_PROTECTIVE_TERMS))
-        one_sided_hits = sum(1 for sentence in matching_sentences if _contains_any_term(sentence, ONE_SIDED_TERMS))
-        gap_hits = sum(1 for sentence in matching_sentences if _contains_any_term(sentence, GAP_TERMS))
+        positive_hits = sum(1 for sentence in sentences if _contains_any_term(sentence, positive_terms))
+        negative_hits = sum(1 for sentence in sentences if _contains_any_term(sentence, negative_terms))
+        evidence_hits = positive_hits + negative_hits
 
-        if elevated_hits >= 2 or (elevated_hits >= 1 and one_sided_hits >= 1):
-            risk = "HIGH"
-        elif gap_hits >= 1 and elevated_hits == 0:
-            risk = "MEDIUM"
-        elif elevated_hits >= 1:
-            risk = "MEDIUM"
-        elif protective_hits >= 1 or mutual_hits >= 1:
-            risk = "LOW"
-        else:
-            risk = "MEDIUM"
+        base_score = 45
+        score = base_score + min(positive_hits * 8, 40) - min(negative_hits * 10, 35)
+        if evidence_hits == 0:
+            score = 40
+        score = max(0, min(100, score))
 
-        if sentence_hits >= 4:
+        if evidence_hits >= 6:
             confidence = "HIGH"
-        elif sentence_hits >= 2:
+        elif evidence_hits >= 2:
             confidence = "MEDIUM"
         else:
             confidence = "LOW"
 
-        rationale_source = matching_sentences[0]
-        rationale_clean = rationale_source[:160].strip()
-        if len(rationale_source) > 160:
-            rationale_clean += "..."
-
-        if risk == "LOW":
-            rationale = f"Detected clause language appears standard or mutual; sample: {rationale_clean}"
-        elif gap_hits >= 1 and elevated_hits == 0:
-            rationale = f"Detected category language includes a protection gap or omission signal; sample: {rationale_clean}"
-        else:
-            rationale = f"Detected clause language indicates {risk.lower()} exposure; sample: {rationale_clean}"
+        weighted_score = round(score * (weight / 100), 1)
+        rationale = (
+            f"Signals found: {positive_hits} positive and {negative_hits} gap/risk indicators "
+            f"for {dimension_name.lower()}."
+        )
 
         score_rows.append(
             {
-                "category": category,
-                "risk": risk,
+                "dimension": dimension_name,
+                "score": str(score),
+                "weight": str(weight),
+                "weighted_score": f"{weighted_score:.1f}",
                 "confidence": confidence,
                 "rationale": rationale,
             }
         )
 
-    overall_value = max((RISK_ORDER[row["risk"]] for row in score_rows), default=0)
-    overall_rating = next((label for label, value in RISK_ORDER.items() if value == overall_value), "NOT FOUND")
-    if overall_rating == "NOT FOUND":
-        overall_rating = "MEDIUM"
+    overall_score = round(sum(float(row["weighted_score"]) for row in score_rows), 1)
+    recommendation = "Pass"
+    for threshold, label in RECOMMENDATION_BANDS:
+        if overall_score >= threshold:
+            recommendation = label
+            break
 
     scored_issues = [
         {
@@ -959,7 +956,7 @@ def _build_scorecard(analysis_report: str, issues_report: str) -> tuple[str, str
         }
         for line in _collect_issue_lines(issues_report)
     ]
-    scored_issues.sort(key=lambda item: item["score"], reverse=True)
+    scored_issues.sort(key=lambda item: (item["score"], item["text"].lower()), reverse=True)
     top_issues = [
         {
             "risk": _issue_risk_label(item["score"]),
@@ -968,24 +965,24 @@ def _build_scorecard(analysis_report: str, issues_report: str) -> tuple[str, str
         for item in scored_issues[:3]
     ]
 
-    not_found_categories = [row["category"] for row in score_rows if row["risk"] == "NOT FOUND"]
-
-    lines = [f"Overall contract risk rating: {overall_rating}", ""]
-    lines.append("| Category | Risk Rating | Confidence | Rationale |")
-    lines.append("| --- | --- | --- | --- |")
+    lines = [f"Overall BD fit score: {overall_score:.1f}/100 - {recommendation}", ""]
+    lines.append("| Dimension | Score | Weight | Weighted Score | Confidence | Rationale |")
+    lines.append("| --- | --- | --- | --- | --- | --- |")
     for row in score_rows:
         rationale = row["rationale"].replace("|", "/")
-        lines.append(f"| {row['category']} | {row['risk']} | {row['confidence']} | {rationale} |")
+        lines.append(
+            f"| {row['dimension']} | {row['score']}/100 | {row['weight']}% | {row['weighted_score']} | {row['confidence']} | {rationale} |"
+        )
     lines.append("")
-    lines.append("Top 3 highest-priority issues:")
+    lines.append("Top 3 highest-priority BD issues:")
     if top_issues:
         for i, issue in enumerate(top_issues, start=1):
             lines.append(f"{i}. [{issue['risk']}] {issue['text']}")
     else:
-        lines.append("1. [LOW] No explicit issue lines were detected in the issues summary.")
+        lines.append("1. [LOW] No explicit BD issue lines were detected in the issues summary.")
 
     scorecard = "\n".join(lines).strip() + "\n"
-    return scorecard, overall_rating, not_found_categories, score_rows
+    return scorecard, recommendation, [], score_rows
 
 
 def _extract_contract_metadata(report_title: str, analysis_report: str) -> tuple[str, str, str, str]:
@@ -1036,62 +1033,68 @@ def _build_executive_summary(
     overall_rating: str,
     score_rows: list[dict[str, str]],
 ) -> str:
-    contract_name, contract_type, parties, effective_date = _extract_contract_metadata(report_title, analysis_report)
-    contract_description = _build_contract_description(contract_type, analysis_report)
     run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    not_found_categories = _not_found_categories_from_scorecard(scorecard)
 
-    high_or_medium = [row for row in score_rows if row["risk"] in ("HIGH", "MEDIUM")]
-    high_or_medium.sort(key=lambda row: RISK_ORDER[row["risk"]], reverse=True)
+    overall_score = round(sum(float(row.get("weighted_score", "0")) for row in score_rows), 1)
+    sorted_rows = sorted(
+        score_rows,
+        key=lambda row: int(row.get("score", "0")),
+        reverse=True,
+    )
+    strongest = sorted_rows[0] if sorted_rows else None
+    weakest = sorted_rows[-1] if sorted_rows else None
 
-    key_risks: list[str] = []
-    for row in high_or_medium[:5]:
-        key_risks.append(f"{row['category']}: {row['risk']} risk exposure.")
-    if not key_risks:
-        key_risks.append("No major risk triggers were detected.")
+    top_bd_risks: list[str] = []
+    for line in scorecard.splitlines():
+        if re.match(r"^\d+\.\s+\[(HIGH|MEDIUM|LOW)\]\s+", line.strip()):
+            top_bd_risks.append(re.sub(r"^\d+\.\s+", "", line.strip()))
 
-    actions: list[str] = []
-    for category in not_found_categories:
-        actions.append(f"Add {category.lower()} clause; legal review required before signing.")
-    for row in score_rows:
-        if len(actions) >= 5:
-            break
-        if row["risk"] == "MEDIUM" and "gap" in row["rationale"].lower():
-            actions.append(f"Address {row['category'].lower()} protection gap before approval.")
-    for row in high_or_medium:
-        if len(actions) >= 5:
-            break
-        actions.append(f"Negotiate {row['category'].lower()} terms before approval.")
-    if len(actions) < 3:
-        actions.append("Confirm business owner accepts residual contract risk profile.")
+    if not top_bd_risks:
+        top_bd_risks = ["[LOW] No high-impact BD risks were detected in the available issue signals."]
 
-    open_questions = [
-        "Who owns final approval authority for unresolved risks?",
-        "Which fallback terms are acceptable if counterparty rejects edits?",
-        "Can signing proceed if mandatory missing clauses remain unresolved?",
+    actions: list[str] = [
+        "Confirm bid/no-bid posture with leadership using the weighted fit score and top BD risks.",
+        "Align proposal strategy to Section M evaluation emphasis and resource the highest-risk volume first.",
     ]
+    if weakest is not None:
+        actions.append(
+            f"Close the largest current gap in {weakest.get('dimension', 'team readiness')} before color-team kickoff."
+        )
+    if any("incumbent" in risk.lower() for risk in top_bd_risks):
+        actions.append("Build explicit discriminators against incumbent advantage and validate transition credibility.")
+    if any("budget" in risk.lower() or "cost" in risk.lower() for risk in top_bd_risks):
+        actions.append("Run a price-to-win sensitivity pass to ensure your labor mix can survive cost realism scrutiny.")
 
     summary_lines = [
-        "## Contract Metadata",
-        f"- Contract name: {contract_name}",
-        f"- Contract type: {contract_type}",
-        f"- Parties involved: {parties}",
-        f"- Effective date: {effective_date}",
+        "## Bid or No-Bid Snapshot",
+        f"- Opportunity: {Path(report_title).stem}",
         f"- Analysis run date: {run_date}",
+        f"- Recommendation: {overall_rating}",
+        f"- Overall BD fit score: {overall_score:.1f}/100",
         "",
-        "## What This Contract Does",
-        *contract_description,
-        "",
-        "## Overall Risk Assessment",
-        f"Overall contract risk is {overall_rating} based on the consolidated scorecard.",
-        "",
-        "## Key Risks Requiring Attention",
+        "## Strongest Alignment",
     ]
-    summary_lines.extend(f"- {item[:118]}" for item in key_risks[:5])
-    summary_lines.extend(["", "## Recommended Actions Before Signing"])
-    summary_lines.extend(f"- {item[:118]}" for item in actions[:5])
-    summary_lines.extend(["", "## Open Questions For Legal Review"])
-    summary_lines.extend(f"- {item}" for item in open_questions[:3])
+
+    if strongest is not None:
+        summary_lines.append(
+            f"- {strongest.get('dimension', 'N/A')}: {strongest.get('score', '0')}/100. {strongest.get('rationale', '')}"
+        )
+    else:
+        summary_lines.append("- No dimension-level scoring data was generated.")
+
+    summary_lines.extend(["", "## Critical Gap"])
+    if weakest is not None:
+        summary_lines.append(
+            f"- {weakest.get('dimension', 'N/A')}: {weakest.get('score', '0')}/100. {weakest.get('rationale', '')}"
+        )
+    else:
+        summary_lines.append("- No critical gap was detected from the available evidence.")
+
+    summary_lines.extend(["", "## Top BD Risks"])
+    summary_lines.extend(f"- {item[:160]}" for item in top_bd_risks[:5])
+
+    summary_lines.extend(["", "## Immediate Capture Actions"])
+    summary_lines.extend(f"- {item[:160]}" for item in actions[:5])
 
     return "\n".join(summary_lines).strip() + "\n"
 
@@ -1106,7 +1109,7 @@ def _analyze_markdown(
     chunks = chunk_markdown(markdown, config.chunk_size_chars, config.overlap_chars)
     agents = [ExtractorAgent(), ReviewerAgent(), AnalystAgent(), LegalRiskAgent(), SynthesizerAgent()]
 
-    issues_lines = [f"# Contract Issues Summary: {report_title}", ""]
+    issues_lines = [f"# BD Issues Summary: {report_title}", ""]
     statuses = asset_statuses or []
     section_buckets: dict[str, dict[str, list[str]]] = {}
     section_order: list[str] = []
