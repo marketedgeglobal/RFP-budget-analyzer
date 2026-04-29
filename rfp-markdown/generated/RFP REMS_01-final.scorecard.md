@@ -1,15 +1,14 @@
-Overall contract risk rating: HIGH
+Overall BD fit score: 63.3/100 - Conditional Pursue
 
-| Category | Risk Rating | Confidence | Rationale |
-| --- | --- | --- | --- |
-| Confidentiality obligations | MEDIUM | HIGH | Detected clause language indicates medium exposure; sample: - (d) SOCIAL MEDIA, MEDIA RELEASES, AND CONFIDENTIALITY: In alignment with the principles of FAR 52.203-19 and the intent of NWCG Public Information Officer pro... |
-| Liability and indemnification | HIGH | HIGH | Detected clause language indicates high exposure; sample: - The Contractor shall be liable for default unless nonperformance is caused by an occurrence beyond the reasonable control of the Contractor and without its fa... |
-| Termination rights | HIGH | HIGH | Detected clause language indicates high exposure; sample: - (B) The date of the first written demand for payment, including any demand for payment resulting from a termination for cause. |
-| Intellectual property | MEDIUM | HIGH | Detected clause language indicates medium exposure; sample: - Casuals hired under the Administratively Determined (AD) Pay Plan shall avoid decisions or recommendations to include, but not limited to: supervision, hiring... |
-| Jurisdiction and governing law | MEDIUM | HIGH | Detected clause language indicates medium exposure; sample: - to include DOT approved helmets • Vehicle Extrication Equipment *Team members shall meet or exceed NFPA 1006 *OHV operators must have applicable OHV Operator... |
-| Data protection and security | HIGH | HIGH | Detected clause language indicates high exposure; sample: - 52.222-62 Paid Sick Leave Under Executive Order 13706 (NOV 2025) 52.223-2 Reporting of Biobased Products Under Service and Construction Contracts (NOV 2025) 5... |
+| Dimension | Score | Weight | Weighted Score | Confidence | Rationale |
+| --- | --- | --- | --- | --- | --- |
+| Technical Capability | 61/100 | 30% | 18.3 | MEDIUM | Signals found: 2 positive and 0 gap/risk indicators for technical capability. |
+| Past Performance Relevance | 61/100 | 25% | 15.2 | MEDIUM | Signals found: 2 positive and 0 gap/risk indicators for past performance relevance. |
+| Certifications and Socioeconomic | 75/100 | 20% | 15.0 | HIGH | Signals found: 5 positive and 1 gap/risk indicators for certifications and socioeconomic. |
+| Contract Vehicle Access | 69/100 | 15% | 10.3 | MEDIUM | Signals found: 3 positive and 0 gap/risk indicators for contract vehicle access. |
+| Team Capacity | 45/100 | 10% | 4.5 | HIGH | Signals found: 2 positive and 0 gap/risk indicators for team capacity. Adjusted using intake profile: intake profile does not show enough functional coverage; missing capture leadership, pricing/finance lead, technical delivery lead, which raises proposal and execution risk. |
 
-Top 3 highest-priority issues:
-1. [HIGH] The Contractor shall indemnify the Government and its officers, employees, and agents against liability, including costs, for actual or alleged direct or contributory infringement of, or inducement to infringe, any United States or foreign patent, trademark, or copyright, arising out of the performance of this contract, provided the Contractor is reasonably notified of such claims and proceedings.
-2. [HIGH] In the event of such termination, the Contractor shall immediately stop all work and shall immediately cause any and all of its suppliers and subcontractors to cease work.
-3. [HIGH] In the event of termination for cause, the Government shall not be liable to the Contractor for any amount for supplies or services not accepted, and the Contractor shall be liable to the Government for any and all rights and remedies provided by law.
+Top 3 highest-priority BD issues:
+1. [HIGH] (3) Failure to provide information in the format requested may be found unacceptable and may be rejected without further consideration if the Contracting Officer determines that a significant revision or addendum to the Offerors quote would be required to permit further evaluation.
+2. [HIGH] Resources that fail to provide required Technical Evaluation pictures and documents will not receive an award or be placed on a DPL and available for assignments.
+3. [MEDIUM] D.16 -- | TECHNICAL EVALUATION PROCESS -- D.16.1 -- | TECHNICAL EVALUATION 25 12024B26Q7004-0003 (a) All resources submitted must pass a Technical Evaluation prior to being considered for award.

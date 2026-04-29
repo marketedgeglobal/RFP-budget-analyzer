@@ -1186,9 +1186,65 @@ def _derive_company_capacity_signals(markdown_text: str, source_name: str) -> di
     }
 
 
+def _missing_critical_capture_roles(key_personnel: str) -> list[str]:
+    text = _normalize_bullet_text(key_personnel).lower()
+    if not text:
+        return ["capture leadership", "pricing/finance lead", "technical delivery lead"]
+
+    role_patterns: tuple[tuple[str, tuple[str, ...]], ...] = (
+        (
+            "capture leadership",
+            (
+                "capture manager",
+                "capture lead",
+                "program manager",
+                "project manager",
+                "pm",
+            ),
+        ),
+        (
+            "pricing/finance lead",
+            (
+                "pricing lead",
+                "pricing manager",
+                "cost estimator",
+                "finance lead",
+                "contracts manager",
+                "proposal manager",
+            ),
+        ),
+        (
+            "technical delivery lead",
+            (
+                "technical lead",
+                "chief engineer",
+                "solution architect",
+                "engineering lead",
+                "operations lead",
+                "ai lead",
+            ),
+        ),
+    )
+
+    missing: list[str] = []
+    for label, tokens in role_patterns:
+        if not any(token in text for token in tokens):
+            missing.append(label)
+    return missing
+
+
 def _team_capacity_cap_from_profile(signals: dict[str, str | int]) -> tuple[int | None, str | None]:
     team_size = str(signals.get("team_size", "")).lower()
     personnel_count = int(signals.get("personnel_count", 0) or 0)
+    key_personnel = str(signals.get("key_personnel", ""))
+    missing_roles = _missing_critical_capture_roles(key_personnel)
+
+    if len(missing_roles) >= 2:
+        return 45, (
+            "intake profile does not show enough functional coverage; missing "
+            + ", ".join(missing_roles)
+            + ", which raises proposal and execution risk"
+        )
 
     if personnel_count > 0 and personnel_count <= 2:
         return 35, "intake profile lists a very lean key team (2 people or fewer), which is unlikely to sustain full proposal and delivery load"

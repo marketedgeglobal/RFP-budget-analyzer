@@ -88,3 +88,21 @@ def test_team_capacity_is_capped_for_two_person_key_team() -> None:
     )
     assert "35/100" in team_capacity_row
     assert "Adjusted using intake profile" in scorecard
+
+
+def test_team_capacity_penalized_for_missing_critical_roles() -> None:
+    analysis_report = "Key personnel resume labor category FTE hours transition mobilization clearance staffing."
+    issues = ["Transition and key personnel requirements create schedule risk."]
+
+    scorecard = _make_scorecard_with_capacity(
+        analysis_report,
+        issues,
+        team_size="11-50",
+        key_personnel="AI lead",
+    )
+
+    team_capacity_row = next(
+        line for line in scorecard.splitlines() if line.startswith("| Team Capacity |")
+    )
+    assert "45/100" in team_capacity_row
+    assert "missing capture leadership" in scorecard

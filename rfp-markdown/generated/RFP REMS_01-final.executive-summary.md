@@ -1,34 +1,21 @@
-## Contract Metadata
-- Contract name: RFP REMS_01-final
-- Contract type: Non-disclosure agreement
-- Parties involved: See contract preamble
-- Effective date: Not stated
-- Analysis run date: 2026-04-28
+## Bid or No-Bid Snapshot
+- Opportunity: RFP REMS_01-final
+- Analysis run date: 2026-04-29
+- Recommendation: Conditional Pursue
+- Overall BD fit score: 63.3/100
 
-## What This Contract Does
-This NDA's directionality is not explicit in the extracted text.
-Stated purpose: any discount offered for early payment, time shall be computed from the date of the invoice.
-Confidentiality duration signal: survive and for how long.
-Notable provisions: injunctive relief.
+## Strongest Alignment
+- Certifications and Socioeconomic: 75/100. Signals found: 5 positive and 1 gap/risk indicators for certifications and socioeconomic.
 
-## Overall Risk Assessment
-Overall contract risk is HIGH based on the consolidated scorecard.
+## Critical Gap
+- Team Capacity: 45/100. Signals found: 2 positive and 0 gap/risk indicators for team capacity. Adjusted using intake profile: intake profile does not show enough functional coverage; missing capture leadership, pricing/finance lead, technical delivery lead, which raises proposal and execution risk.
 
-## Key Risks Requiring Attention
-- Liability and indemnification: HIGH risk exposure.
-- Termination rights: HIGH risk exposure.
-- Data protection and security: HIGH risk exposure.
-- Confidentiality obligations: MEDIUM risk exposure.
-- Intellectual property: MEDIUM risk exposure.
+## Top BD Risks
+- [HIGH] (3) Failure to provide information in the format requested may be found unacceptable and may be rejected without further consideration if the Contracting
+- [HIGH] Resources that fail to provide required Technical Evaluation pictures and documents will not receive an award or be placed on a DPL and available for ass
+- [MEDIUM] D.16 -- | TECHNICAL EVALUATION PROCESS -- D.16.1 -- | TECHNICAL EVALUATION 25 12024B26Q7004-0003 (a) All resources submitted must pass a Technical Eval
 
-## Recommended Actions Before Signing
-- Negotiate liability and indemnification terms before approval.
-- Negotiate termination rights terms before approval.
-- Negotiate data protection and security terms before approval.
-- Negotiate confidentiality obligations terms before approval.
-- Negotiate intellectual property terms before approval.
-
-## Open Questions For Legal Review
-- Who owns final approval authority for unresolved risks?
-- Which fallback terms are acceptable if counterparty rejects edits?
-- Can signing proceed if mandatory missing clauses remain unresolved?
+## Immediate Capture Actions
+- Confirm bid/no-bid posture with leadership using the weighted fit score and top BD risks.
+- Align proposal strategy to Section M evaluation emphasis and resource the highest-risk volume first.
+- Close the largest current gap in Team Capacity before color-team kickoff.
