@@ -81,7 +81,7 @@
       font-size: 16px;
       color: var(--muted);
       line-height: 1.6;
-      max-width: 620px;
+      max-width: none;
     }
 
     .section-head {
@@ -126,6 +126,10 @@
 
     .field-group.two-col {
       grid-template-columns: 1fr 1fr;
+    }
+
+    .field-group.two-col .field {
+      margin-top: 0;
     }
 
     .field {
@@ -423,7 +427,7 @@
       color: var(--muted);
       line-height: 1.65;
       margin-bottom: 24px;
-      max-width: 64ch;
+      max-width: none;
     }
 
     .submit-note strong {
