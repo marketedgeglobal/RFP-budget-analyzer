@@ -74,6 +74,22 @@ on:
         description: "Key personnel summary from intake"
         required: false
         type: string
+      capabilityText:
+        description: "Extracted capability statement text"
+        required: false
+        type: string
+      capabilityFileName:
+        description: "Capability statement filename"
+        required: false
+        type: string
+      supportingDocText:
+        description: "Extracted supporting document text"
+        required: false
+        type: string
+      supportingDocFileName:
+        description: "Supporting document filename"
+        required: false
+        type: string
   repository_dispatch:
     types: [rfp-submission]
 
@@ -95,6 +111,8 @@ jobs:
           echo "| Company | ${{ github.event.client_payload.company || github.event.inputs.company }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Contact | ${{ github.event.client_payload.contact || github.event.inputs.contact }} |" >> $GITHUB_STEP_SUMMARY
           echo "| RFP File | ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Capability Statement File | ${{ github.event.client_payload.capabilityFileName || github.event.inputs.capabilityFileName || 'Not provided' }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Supporting Document File | ${{ github.event.client_payload.supportingDocFileName || github.event.inputs.supportingDocFileName || 'Not provided' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Submitted | ${{ github.event.client_payload.submittedAt || github.event.inputs.submittedAt }} |" >> $GITHUB_STEP_SUMMARY
 
       # ── STEP 2: Checkout repository ───────────────────────────────────────
@@ -186,6 +204,10 @@ jobs:
           PAST_PERFORMANCE: ${{ github.event.client_payload.pastPerformance || github.event.inputs.pastPerformance }}
           TEAM_SIZE:      ${{ github.event.client_payload.teamSize || github.event.inputs.teamSize }}
           KEY_PERSONNEL:  ${{ github.event.client_payload.keyPersonnel || github.event.inputs.keyPersonnel }}
+          CAPABILITY_TEXT: ${{ github.event.client_payload.capabilityText || github.event.inputs.capabilityText }}
+          CAPABILITY_FILENAME: ${{ github.event.client_payload.capabilityFileName || github.event.inputs.capabilityFileName }}
+          SUPPORTING_DOC_TEXT: ${{ github.event.client_payload.supportingDocText || github.event.inputs.supportingDocText }}
+          SUPPORTING_DOC_FILENAME: ${{ github.event.client_payload.supportingDocFileName || github.event.inputs.supportingDocFileName }}
         run: |
           DEST_DIR="rfp-pdfs/${SUBMISSION_ID}"
           METADATA_PATH="${DEST_DIR}/submission-metadata.json"
@@ -210,6 +232,60 @@ jobs:
 
           echo "Metadata written to ${METADATA_PATH}"
           cat "${METADATA_PATH}"
+
+          COMPANY_PROFILE_PATH="${DEST_DIR}/company-profile.md"
+          CAPABILITY_BODY="${CAPABILITY_TEXT}"
+          if [ -z "${CAPABILITY_BODY}" ]; then
+            CAPABILITY_BODY="Not provided"
+          fi
+
+          cat > "${COMPANY_PROFILE_PATH}" << EOF
+          # Submitted Company Profile
+
+          ## Company Name
+          ${COMPANY}
+
+          ## Contact Name
+          ${CONTACT}
+
+          ## Contact Email
+          ${EMAIL}
+
+          ## NAICS Codes
+          ${NAICS}
+
+          ## Certifications
+          ${CERTIFICATIONS}
+
+          ## Contract Vehicles
+          ${CONTRACT_VEHICLES}
+
+          ## Past Performance Summary
+          ${PAST_PERFORMANCE}
+
+          ## Team Size
+          ${TEAM_SIZE}
+
+          ## Key Personnel
+          ${KEY_PERSONNEL}
+
+          ## Capability Statement
+          ${CAPABILITY_BODY}
+          EOF
+
+          if [ -n "${SUPPORTING_DOC_TEXT}" ]; then
+            SUPPORTING_HEADER_FILENAME="${SUPPORTING_DOC_FILENAME}"
+            if [ -z "${SUPPORTING_HEADER_FILENAME}" ]; then
+              SUPPORTING_HEADER_FILENAME="Document"
+            fi
+            {
+              echo ""
+              echo "## Supporting Document — ${SUPPORTING_HEADER_FILENAME}"
+              echo "${SUPPORTING_DOC_TEXT}"
+            } >> "${COMPANY_PROFILE_PATH}"
+          fi
+
+          echo "Company profile written to ${COMPANY_PROFILE_PATH}"
 
       # ── STEP 7: Commit PDF and metadata to trigger conversion pipeline ─────
       - name: Commit PDF to rfp-pdfs/

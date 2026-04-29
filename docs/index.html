@@ -180,7 +180,8 @@
     .field select:focus,
     .btn-add-naics:focus-visible,
     .btn-submit:focus-visible,
-    .file-clear:focus-visible {
+    .file-clear:focus-visible,
+    .accordion-toggle:focus-visible {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(57, 61, 50, 0.2);
     }
@@ -414,6 +415,92 @@
     .file-clear:hover {
       color: var(--error);
       border-color: #f2caca;
+    }
+
+    .doc-extract-status {
+      display: none;
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.45;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+    .doc-extract-status.show { display: block; }
+    .doc-extract-status.success {
+      color: var(--success);
+      background: var(--success-bg);
+      border-color: #b9e4ca;
+    }
+    .doc-extract-status.warning {
+      color: var(--warning);
+      background: var(--warning-bg);
+      border-color: #efd88f;
+    }
+
+    .accordion-section {
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      background: var(--surface-soft);
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    .accordion-toggle {
+      width: 100%;
+      border: none;
+      background: transparent;
+      color: var(--ink-strong);
+      font-family: 'Source Sans 3', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+      text-align: left;
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      cursor: pointer;
+      border-bottom: 1px solid transparent;
+    }
+
+    .accordion-label {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .accordion-chevron {
+      font-size: 14px;
+      color: var(--muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+
+    .accordion-preview {
+      padding: 0 18px 16px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 0 18px 18px;
+      border-top: 1px solid var(--rule);
+    }
+
+    .accordion-section.open .accordion-toggle {
+      border-bottom-color: var(--rule);
+    }
+
+    .accordion-section.open .accordion-chevron {
+      transform: rotate(180deg);
+    }
+
+    .accordion-section.open .accordion-preview {
+      display: none;
+    }
+
+    .accordion-section.open .accordion-content {
+      display: block;
     }
 
     .submit-section {
@@ -655,7 +742,7 @@
       to ensure it is processed as a new submission.
     </p>
     <div class="success-id" id="successId"></div>
-    <button type="button" class="btn-submit success-action" id="submitAnotherBtn" onclick="window.location.reload()">
+    <button type="button" class="btn-submit success-action" id="submitAnotherBtn" onclick="resetForNewSubmission()">
       Submit Another RFP <span>→</span>
     </button>
   </div>
@@ -791,9 +878,66 @@
 
     <hr class="divider"/>
 
-    <!-- Section 3: RFP Upload -->
+    <!-- Section 3: Supporting Documents -->
     <div class="section-head">
       <span class="section-num">iii.</span>
+      <span class="section-title">Supporting Documents (Optional)</span>
+    </div>
+
+    <div class="accordion-section" id="supportingDocsSection">
+      <button type="button" class="accordion-toggle" id="supportingDocsToggle" aria-expanded="false" aria-controls="supportingDocsContent">
+        <span class="accordion-label">Supporting Documents (Optional)</span>
+        <span class="accordion-chevron">▾</span>
+      </button>
+      <div class="accordion-preview">
+        Upload your capability statement and any supporting documentation to strengthen the analysis.
+      </div>
+      <div class="accordion-content" id="supportingDocsContent">
+        <div class="field">
+          <label>Capability Statement</label>
+          <span class="field-hint">Upload your company capability statement. File must contain 'Capabilities' in the filename. Accepted formats: .docx, .doc</span>
+          <div class="upload-card">
+            <div class="drop-zone" id="capabilityDropZone">
+              <input type="file" id="capabilityFile" name="capabilityFile" accept=".doc,.docx" onchange="handleCapabilityFile(event)"/>
+              <span class="drop-icon">📄</span>
+              <div class="drop-title">Drop capability statement here or click to browse</div>
+              <div class="drop-hint">e.g. Company-Capabilities-2026.docx</div>
+            </div>
+            <div class="file-loaded" id="capabilityFileLoaded">
+              <span class="file-name" id="capabilityFileNameDisplay">—</span>
+              <span class="file-size" id="capabilityFileSizeDisplay"></span>
+              <button type="button" class="file-clear" onclick="clearCapabilityFile()">✕ Remove</button>
+            </div>
+            <div class="doc-extract-status" id="capabilityExtractStatus"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label>Supporting Document</label>
+          <span class="field-hint">Upload one supporting document such as a past performance narrative, client testimonial, or project summary.</span>
+          <div class="upload-card">
+            <div class="drop-zone" id="supportingDocDropZone">
+              <input type="file" id="supportingDocFile" name="supportingDocFile" accept=".doc,.docx" onchange="handleSupportingDocFile(event)"/>
+              <span class="drop-icon">📄</span>
+              <div class="drop-title">Drop supporting document here or click to browse</div>
+              <div class="drop-hint">e.g. Past-Performance.docx, Client-Testimonial.docx</div>
+            </div>
+            <div class="file-loaded" id="supportingDocFileLoaded">
+              <span class="file-name" id="supportingDocFileNameDisplay">—</span>
+              <span class="file-size" id="supportingDocFileSizeDisplay"></span>
+              <button type="button" class="file-clear" onclick="clearSupportingDocFile()">✕ Remove</button>
+            </div>
+            <div class="doc-extract-status" id="supportingDocExtractStatus"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider"/>
+
+    <!-- Section 4: RFP Upload -->
+    <div class="section-head">
+      <span class="section-num">iv.</span>
       <span class="section-title">RFP Document</span>
     </div>
 
@@ -861,6 +1005,7 @@
 
 </div><!-- /page -->
 
+<script src="https://unpkg.com/mammoth/mammoth.browser.min.js"></script>
 <script>
 // ── CONFIGURATION ──────────────────────────────────────────────────────
 // Replace with your deployed Cloudflare Worker URL before going live
@@ -869,6 +1014,13 @@ const WORKER_URL = 'https://tmg-rfp-intake.ross-mallory.workers.dev/submit';
 // ── STATE ──────────────────────────────────────────────────────────────
 let selectedFile  = null;
 let naicsCodes    = [];
+let capabilityFile = null;
+let supportingDocFile = null;
+let capabilityText = '';
+let capabilityFileName = '';
+let supportingDocText = '';
+let supportingDocFileName = '';
+let supportingDocsOpened = false;
 
 // ── DRAG AND DROP ──────────────────────────────────────────────────────
 const dropZone = document.getElementById('dropZone');
@@ -886,6 +1038,39 @@ dropZone.addEventListener('drop', e => {
   const file = e.dataTransfer?.files?.[0];
   if (file) processFile(file);
 });
+
+setupWordDropZone('capabilityDropZone', processCapabilityFile);
+setupWordDropZone('supportingDocDropZone', processSupportingDocFile);
+
+const supportingDocsSection = document.getElementById('supportingDocsSection');
+const supportingDocsToggle = document.getElementById('supportingDocsToggle');
+supportingDocsToggle.addEventListener('click', toggleSupportingDocs);
+
+function toggleSupportingDocs(forceOpen = null) {
+  const shouldOpen = forceOpen === null
+    ? !supportingDocsSection.classList.contains('open')
+    : !!forceOpen;
+  supportingDocsSection.classList.toggle('open', shouldOpen);
+  supportingDocsToggle.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+  if (shouldOpen) supportingDocsOpened = true;
+}
+
+function setupWordDropZone(zoneId, handler) {
+  const zone = document.getElementById(zoneId);
+  zone.addEventListener('dragover', e => {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+  zone.addEventListener('dragleave', () => {
+    zone.classList.remove('drag-over');
+  });
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) handler(file);
+  });
+}
 
 function handleFile(e) {
   const file = e.target.files?.[0];
@@ -913,6 +1098,120 @@ function clearFile() {
   selectedFile = null;
   document.getElementById('rfpFile').value     = '';
   document.getElementById('fileLoaded').classList.remove('show');
+}
+
+function handleCapabilityFile(e) {
+  const file = e.target.files?.[0];
+  if (file) processCapabilityFile(file);
+}
+
+function handleSupportingDocFile(e) {
+  const file = e.target.files?.[0];
+  if (file) processSupportingDocFile(file);
+}
+
+async function processCapabilityFile(file) {
+  if (!isWordFile(file)) {
+    showError('Capability Statement must be a Word document (.docx or .doc)');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showError('Capability Statement file size must be under 10MB');
+    return;
+  }
+  capabilityFile = file;
+  capabilityFileName = file.name;
+  renderDocFileState('capability', file);
+  await extractDocText(file, 'capability');
+}
+
+async function processSupportingDocFile(file) {
+  if (!isWordFile(file)) {
+    showError('Supporting Document must be a Word document (.docx or .doc)');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showError('Supporting Document file size must be under 10MB');
+    return;
+  }
+  supportingDocFile = file;
+  supportingDocFileName = file.name;
+  renderDocFileState('supportingDoc', file);
+  await extractDocText(file, 'supportingDoc');
+}
+
+function clearCapabilityFile() {
+  capabilityFile = null;
+  capabilityText = '';
+  capabilityFileName = '';
+  document.getElementById('capabilityFile').value = '';
+  document.getElementById('capabilityFileLoaded').classList.remove('show');
+  resetExtractStatus('capabilityExtractStatus');
+}
+
+function clearSupportingDocFile() {
+  supportingDocFile = null;
+  supportingDocText = '';
+  supportingDocFileName = '';
+  document.getElementById('supportingDocFile').value = '';
+  document.getElementById('supportingDocFileLoaded').classList.remove('show');
+  resetExtractStatus('supportingDocExtractStatus');
+}
+
+function renderDocFileState(prefix, file) {
+  document.getElementById(`${prefix}FileNameDisplay`).textContent = file.name;
+  document.getElementById(`${prefix}FileSizeDisplay`).textContent =
+    (file.size / 1024 / 1024).toFixed(2) + ' MB';
+  document.getElementById(`${prefix}FileLoaded`).classList.add('show');
+  clearError();
+}
+
+function resetExtractStatus(statusId) {
+  const statusEl = document.getElementById(statusId);
+  statusEl.classList.remove('show', 'success', 'warning');
+  statusEl.textContent = '';
+}
+
+function showExtractStatus(statusId, kind, text) {
+  const statusEl = document.getElementById(statusId);
+  statusEl.classList.remove('success', 'warning');
+  statusEl.classList.add('show', kind);
+  statusEl.textContent = text;
+}
+
+function isWordFile(file) {
+  return /\.(docx|doc)$/i.test(file.name || '');
+}
+
+function fileWordCount(text) {
+  if (!text || !text.trim()) return 0;
+  return text.trim().split(/\s+/).length;
+}
+
+async function extractDocText(file, docType) {
+  const statusId = docType === 'capability' ? 'capabilityExtractStatus' : 'supportingDocExtractStatus';
+  try {
+    if (!window.mammoth || typeof window.mammoth.extractRawText !== 'function') {
+      throw new Error('mammoth unavailable');
+    }
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await window.mammoth.extractRawText({ arrayBuffer });
+    const text = (result?.value || '').trim();
+    const count = fileWordCount(text);
+
+    if (docType === 'capability') capabilityText = text;
+    if (docType === 'supportingDoc') supportingDocText = text;
+
+    showExtractStatus(statusId, 'success', `✓ Document text extracted — ${count} words`);
+  } catch (err) {
+    if (docType === 'capability') capabilityText = '';
+    if (docType === 'supportingDoc') supportingDocText = '';
+    showExtractStatus(
+      statusId,
+      'warning',
+      '⚠ Could not extract text. The file will still be uploaded for manual review.'
+    );
+  }
 }
 
 // ── NAICS TAGS ─────────────────────────────────────────────────────────
@@ -973,6 +1272,37 @@ document.getElementById('intakeForm').addEventListener('submit', async (e) => {
   if (!naicsCodes.length)    { showError('At least one NAICS code is required.'); return; }
   if (!pastPerformance)      { showError('Past performance summary is required.'); return; }
   if (!selectedFile)         { showError('Please upload the RFP PDF.'); return; }
+  if (supportingDocsOpened && !capabilityFile) {
+    showError('Capability Statement is required when Supporting Documents are opened.');
+    return;
+  }
+
+  if (capabilityFile) {
+    if (!isWordFile(capabilityFile)) {
+      showError('Capability Statement must be a Word document (.docx or .doc)');
+      return;
+    }
+    if (capabilityFile.size > 10 * 1024 * 1024) {
+      showError('Capability Statement file size must be under 10MB');
+      return;
+    }
+    const capabilityBaseName = capabilityFile.name.replace(/\.[^.]+$/, '');
+    if (!/capabilities/i.test(capabilityBaseName)) {
+      showError('Capability Statement filename must contain \'Capabilities\'. Please rename your file, for example: Company-Capabilities-2026.docx');
+      return;
+    }
+  }
+
+  if (supportingDocFile) {
+    if (!isWordFile(supportingDocFile)) {
+      showError('Supporting Document must be a Word document (.docx or .doc)');
+      return;
+    }
+    if (supportingDocFile.size > 10 * 1024 * 1024) {
+      showError('Supporting Document file size must be under 10MB');
+      return;
+    }
+  }
 
   // Word count check
   const wordCount = pastPerformance.split(/\s+/).length;
@@ -996,7 +1326,17 @@ document.getElementById('intakeForm').addEventListener('submit', async (e) => {
   formData.append('pastPerformance', pastPerformance);
   formData.append('teamSize',        document.getElementById('teamSize').value);
   formData.append('keyPersonnel',    document.getElementById('keyPersonnel').value.trim());
+  formData.append('capabilityText', capabilityText || '');
+  formData.append('capabilityFileName', capabilityFileName || '');
+  formData.append('supportingDocText', supportingDocText || '');
+  formData.append('supportingDocFileName', supportingDocFileName || '');
   formData.append('rfpFile',         selectedFile, selectedFile.name);
+  if (capabilityFile) {
+    formData.append('capabilityFile', capabilityFile, capabilityFile.name);
+  }
+  if (supportingDocFile) {
+    formData.append('supportingDocFile', supportingDocFile, supportingDocFile.name);
+  }
 
   setLoading(true, 'Uploading RFP…');
 
@@ -1047,6 +1387,28 @@ function clearError() {
 
 function validateEmail(email) {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function resetForNewSubmission() {
+  document.getElementById('intakeForm').reset();
+  naicsCodes = [];
+  renderNaics();
+  selectedFile = null;
+  clearFile();
+  clearCapabilityFile();
+  clearSupportingDocFile();
+  capabilityText = '';
+  capabilityFileName = '';
+  supportingDocText = '';
+  supportingDocFileName = '';
+  supportingDocsOpened = false;
+  toggleSupportingDocs(false);
+  document.getElementById('ppCount').textContent = '0 / 200 words';
+  document.getElementById('ppCount').style.color = 'var(--muted)';
+  clearError();
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('intakeForm').style.display = 'block';
+  document.getElementById('intakeForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 // ── WIX IFRAME HEIGHT ──────────────────────────────────────────────────
