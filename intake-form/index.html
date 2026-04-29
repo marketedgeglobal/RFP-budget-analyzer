@@ -10,9 +10,9 @@
     :root {
       --ink: #393d32;
       --ink-strong: #2c3026;
-      --bg: #f1f3ee;
-      --surface: #fbfcf9;
-      --surface-soft: #f0e9da;
+      --bg: #ecefe6;
+      --surface: #e8ecdf;
+      --surface-soft: #ebe2d2;
       --rule: #c8c9c5;
       --field-border: #c8c9c5;
       --accent: #393d32;
@@ -31,7 +31,7 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: linear-gradient(180deg, #f6f8f3 0%, #ecefe6 100%);
+      background: linear-gradient(180deg, #e4e8dc 0%, #d8dfcf 100%);
       color: var(--ink);
       font-family: 'Source Sans 3', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
       min-height: 100vh;
@@ -44,6 +44,7 @@
       max-width: 760px;
       margin: 0 auto;
       padding: 0 28px 84px;
+      background: rgba(236, 239, 230, 0.7);
     }
 
     header {
@@ -323,13 +324,13 @@
       cursor: pointer;
       transition: border-color 0.15s, background 0.15s;
       position: relative;
-      background: #fbfcf9;
+      background: #eef2e8;
     }
 
     .drop-zone:hover,
     .drop-zone.drag-over {
       border-color: var(--accent);
-      background: #f4f5f1;
+      background: #e6ebdf;
     }
 
     .drop-zone input[type="file"] {
