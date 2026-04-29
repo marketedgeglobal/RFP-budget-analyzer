@@ -725,9 +725,10 @@
     <div class="eyebrow">MarketEdge</div>
     <h1>RFP Analysis <em>Request</em></h1>
     <p class="header-desc">
-      Submit your federal RFP for AI-powered analysis. Receive a company fit
-      score, PWS labor category mapping, and a GSA-based budget estimate
-      within three business days.
+      Submit your RFP, ToR, or solicitation for AI-powered analysis. Receive a fit score,
+      budget estimate, and capture intelligence brief within three business days.
+      To resubmit an updated document, rename the file before uploading to ensure
+      it is processed as a new submission.
     </p>
   </header>
 
@@ -754,6 +755,18 @@
     <div class="section-head">
       <span class="section-num">i.</span>
       <span class="section-title">Company Information</span>
+    </div>
+
+    <div class="field-group">
+      <div class="field">
+        <label>Procurement Type <span class="required-mark">*</span></label>
+        <select id="procurementType" name="procurementType" required>
+          <option value="">Select procurement type...</option>
+          <option value="us-federal">US Federal RFP (SAM.gov / FAR-based)</option>
+          <option value="intl-dev">International Development (USAID, World Bank, DFAT, UN, etc.)</option>
+          <option value="other">Other / Commercial</option>
+        </select>
+      </div>
     </div>
 
     <div class="field-group two-col">
@@ -786,66 +799,88 @@
       <span class="section-title">Company Capabilities</span>
     </div>
 
-    <!-- NAICS Codes -->
-    <div class="field">
-      <label>NAICS Codes <span class="required-mark">*</span></label>
-      <div class="naics-add-row">
-        <input type="text" id="naicsInput" placeholder="e.g. 541511"
-               maxlength="10" pattern="[0-9]*"/>
-        <button type="button" class="btn-add-naics" onclick="addNaics()">
-          + Add Code
-        </button>
+    <div id="us-federal-fields" style="display:none;">
+      <!-- NAICS Codes -->
+      <div class="field">
+        <label>NAICS Codes <span class="required-mark">*</span></label>
+        <div class="naics-add-row">
+          <input type="text" id="naicsInput" placeholder="e.g. 541511"
+                 maxlength="10" pattern="[0-9]*"/>
+          <button type="button" class="btn-add-naics" onclick="addNaics()">
+            + Add Code
+          </button>
+        </div>
+        <div class="naics-tags" id="naicsTags"></div>
+        <input type="hidden" id="naicsHidden" name="naics"/>
+        <span class="field-hint">Add your primary NAICS code first, then any relevant secondaries</span>
       </div>
-      <div class="naics-tags" id="naicsTags"></div>
-      <input type="hidden" id="naicsHidden" name="naics"/>
-      <span class="field-hint">Add your primary NAICS code first, then any relevant secondaries</span>
+
+      <!-- Certifications -->
+      <div class="field">
+        <label>Certifications &amp; Socioeconomic Status</label>
+        <div class="cert-grid">
+          <label class="cert-item">
+            <input type="checkbox" name="cert_8a" value="8(a)"/>
+            <span class="cert-label">8(a)</span>
+          </label>
+          <label class="cert-item">
+            <input type="checkbox" name="cert_hubzone" value="HUBZone"/>
+            <span class="cert-label">HUBZone</span>
+          </label>
+          <label class="cert-item">
+            <input type="checkbox" name="cert_sdvosb" value="SDVOSB"/>
+            <span class="cert-label">SDVOSB</span>
+          </label>
+          <label class="cert-item">
+            <input type="checkbox" name="cert_wosb" value="WOSB"/>
+            <span class="cert-label">WOSB</span>
+          </label>
+          <label class="cert-item">
+            <input type="checkbox" name="cert_edwosb" value="EDWOSB"/>
+            <span class="cert-label">EDWOSB</span>
+          </label>
+          <label class="cert-item">
+            <input type="checkbox" name="cert_vosb" value="VOSB"/>
+            <span class="cert-label">VOSB</span>
+          </label>
+          <label class="cert-item">
+            <input type="checkbox" name="cert_iso" value="ISO 9001"/>
+            <span class="cert-label">ISO 9001</span>
+          </label>
+          <label class="cert-item">
+            <input type="checkbox" name="cert_cmmi" value="CMMI"/>
+            <span class="cert-label">CMMI</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Contract Vehicles -->
+      <div class="field">
+        <label>Contract Vehicles</label>
+        <textarea id="vehicles" name="vehicles"
+          placeholder="List active contract vehicles — GSA schedules, GWACs, agency IDIQs&#10;e.g. GSA IT Schedule 70, CIO-SP3, Alliant 2, agency BPA"></textarea>
+        <span class="field-hint">Include schedule numbers where known</span>
+      </div>
     </div>
 
-    <!-- Certifications -->
-    <div class="field">
-      <label>Certifications &amp; Socioeconomic Status</label>
-      <div class="cert-grid">
-        <label class="cert-item">
-          <input type="checkbox" name="cert_8a" value="8(a)"/>
-          <span class="cert-label">8(a)</span>
-        </label>
-        <label class="cert-item">
-          <input type="checkbox" name="cert_hubzone" value="HUBZone"/>
-          <span class="cert-label">HUBZone</span>
-        </label>
-        <label class="cert-item">
-          <input type="checkbox" name="cert_sdvosb" value="SDVOSB"/>
-          <span class="cert-label">SDVOSB</span>
-        </label>
-        <label class="cert-item">
-          <input type="checkbox" name="cert_wosb" value="WOSB"/>
-          <span class="cert-label">WOSB</span>
-        </label>
-        <label class="cert-item">
-          <input type="checkbox" name="cert_edwosb" value="EDWOSB"/>
-          <span class="cert-label">EDWOSB</span>
-        </label>
-        <label class="cert-item">
-          <input type="checkbox" name="cert_vosb" value="VOSB"/>
-          <span class="cert-label">VOSB</span>
-        </label>
-        <label class="cert-item">
-          <input type="checkbox" name="cert_iso" value="ISO 9001"/>
-          <span class="cert-label">ISO 9001</span>
-        </label>
-        <label class="cert-item">
-          <input type="checkbox" name="cert_cmmi" value="CMMI"/>
-          <span class="cert-label">CMMI</span>
-        </label>
+    <div id="intl-dev-fields" style="display:none;">
+      <div class="field-group two-col">
+        <div class="field">
+          <label>Donor / Funder</label>
+          <input type="text" id="donor" name="donor"
+                 placeholder="e.g. USAID, World Bank, DFAT, UN Women"/>
+        </div>
+        <div class="field">
+          <label>Sector / Thematic Area</label>
+          <input type="text" id="sector" name="sector"
+                 placeholder="e.g. Trade, Health, Governance, Education"/>
+        </div>
       </div>
-    </div>
-
-    <!-- Contract Vehicles -->
-    <div class="field">
-      <label>Contract Vehicles</label>
-      <textarea id="vehicles" name="vehicles"
-        placeholder="List active contract vehicles — GSA schedules, GWACs, agency IDIQs&#10;e.g. GSA IT Schedule 70, CIO-SP3, Alliant 2, agency BPA"></textarea>
-      <span class="field-hint">Include schedule numbers where known</span>
+      <div class="field">
+        <label>Managing Contractor (if applicable)</label>
+        <input type="text" id="managingContractor" name="managingContractor"
+               placeholder="e.g. Tetra Tech, DAI, Chemonics, RTI"/>
+      </div>
     </div>
 
     <!-- Past Performance -->
@@ -1021,6 +1056,7 @@ let capabilityFileName = '';
 let supportingDocText = '';
 let supportingDocFileName = '';
 let supportingDocsOpened = false;
+const FORM_SETTINGS_KEY = 'rfpIntakeFormSettings';
 
 // ── DRAG AND DROP ──────────────────────────────────────────────────────
 const dropZone = document.getElementById('dropZone');
@@ -1245,6 +1281,83 @@ function renderNaics() {
     </span>`).join('');
 }
 
+// ── PROCUREMENT TYPE TOGGLE ───────────────────────────────────────────
+function clearUsFederalFields() {
+  naicsCodes = [];
+  renderNaics();
+  document.getElementById('naicsInput').value = '';
+  document.getElementById('vehicles').value = '';
+  document.querySelectorAll('input[name^="cert_"]').forEach(cb => { cb.checked = false; });
+}
+
+function clearIntlDevFields() {
+  document.getElementById('donor').value = '';
+  document.getElementById('sector').value = '';
+  document.getElementById('managingContractor').value = '';
+}
+
+function saveFormSettings() {
+  const settings = {
+    procurementType: document.getElementById('procurementType').value
+  };
+  try {
+    localStorage.setItem(FORM_SETTINGS_KEY, JSON.stringify(settings));
+  } catch (_) {
+    // Ignore storage errors so form behavior remains unchanged.
+  }
+}
+
+function loadFormSettings() {
+  try {
+    const raw = localStorage.getItem(FORM_SETTINGS_KEY);
+    if (!raw) return;
+    const settings = JSON.parse(raw);
+    if (typeof settings.procurementType === 'string') {
+      document.getElementById('procurementType').value = settings.procurementType;
+    }
+  } catch (_) {
+    // Ignore malformed storage values.
+  }
+}
+
+function updateProcurementFields() {
+  const procurementType = document.getElementById('procurementType').value;
+  const usFederalFields = document.getElementById('us-federal-fields');
+  const intlDevFields = document.getElementById('intl-dev-fields');
+
+  if (procurementType === 'us-federal') {
+    usFederalFields.style.display = 'block';
+    intlDevFields.style.display = 'none';
+    clearIntlDevFields();
+  } else if (procurementType === 'intl-dev') {
+    usFederalFields.style.display = 'none';
+    intlDevFields.style.display = 'block';
+    clearUsFederalFields();
+  } else {
+    usFederalFields.style.display = 'none';
+    intlDevFields.style.display = 'none';
+    clearUsFederalFields();
+    clearIntlDevFields();
+  }
+}
+
+function clearHiddenProcurementFields(procurementType) {
+  if (procurementType !== 'us-federal') {
+    clearUsFederalFields();
+  }
+  if (procurementType !== 'intl-dev') {
+    clearIntlDevFields();
+  }
+}
+
+document.getElementById('procurementType').addEventListener('change', () => {
+  updateProcurementFields();
+  saveFormSettings();
+});
+
+loadFormSettings();
+updateProcurementFields();
+
 // ── WORD COUNT ─────────────────────────────────────────────────────────
 document.getElementById('pastPerformance').addEventListener('input', function() {
   const words = this.value.trim()
@@ -1260,16 +1373,24 @@ document.getElementById('intakeForm').addEventListener('submit', async (e) => {
   clearError();
 
   // Validate required fields
+  const procurementType = document.getElementById('procurementType').value;
   const company         = document.getElementById('company').value.trim();
   const contact         = document.getElementById('contact').value.trim();
   const email           = document.getElementById('email').value.trim();
   const pastPerformance = document.getElementById('pastPerformance').value.trim();
 
+  // Clear non-visible procurement-specific inputs before validation/payload build.
+  clearHiddenProcurementFields(procurementType);
+
+  if (!procurementType) { showError('Please select a procurement type'); return; }
   if (!company)         { showError('Company name is required.'); return; }
   if (!contact)         { showError('Contact name is required.'); return; }
   if (!email)           { showError('Contact email is required.'); return; }
   if (!validateEmail(email)) { showError('Please enter a valid email address.'); return; }
-  if (!naicsCodes.length)    { showError('At least one NAICS code is required.'); return; }
+  if (procurementType === 'us-federal' && !naicsCodes.length) {
+    showError('At least one NAICS code is required.');
+    return;
+  }
   if (!pastPerformance)      { showError('Past performance summary is required.'); return; }
   if (!selectedFile)         { showError('Please upload the RFP PDF.'); return; }
   if (supportingDocsOpened && !capabilityFile) {
@@ -1312,17 +1433,32 @@ document.getElementById('intakeForm').addEventListener('submit', async (e) => {
   }
 
   // Collect certifications
-  const certBoxes = document.querySelectorAll('input[name^="cert_"]:checked');
+  const certBoxes = procurementType === 'us-federal'
+    ? document.querySelectorAll('input[name^="cert_"]:checked')
+    : [];
   const certs     = Array.from(certBoxes).map(cb => cb.value).join(', ');
+  const donor = procurementType === 'intl-dev' ? document.getElementById('donor').value.trim() : '';
+  const sector = procurementType === 'intl-dev' ? document.getElementById('sector').value.trim() : '';
+  const managingContractor = procurementType === 'intl-dev'
+    ? document.getElementById('managingContractor').value.trim()
+    : '';
 
   // Build FormData
   const formData = new FormData();
+  formData.append('procurementType', procurementType);
   formData.append('company',         company);
   formData.append('contact',         contact);
   formData.append('email',           email);
-  formData.append('naics',           naicsCodes.join(', '));
-  formData.append('certifications',  certs);
-  formData.append('vehicles',        document.getElementById('vehicles').value.trim());
+  if (procurementType === 'us-federal') {
+    formData.append('naics', naicsCodes.join(', '));
+    formData.append('certifications', certs);
+    formData.append('vehicles', document.getElementById('vehicles').value.trim());
+  }
+  if (procurementType === 'intl-dev') {
+    formData.append('donor', donor);
+    formData.append('sector', sector);
+    formData.append('managingContractor', managingContractor);
+  }
   formData.append('pastPerformance', pastPerformance);
   formData.append('teamSize',        document.getElementById('teamSize').value);
   formData.append('keyPersonnel',    document.getElementById('keyPersonnel').value.trim());
@@ -1391,6 +1527,10 @@ function validateEmail(email) {
 
 function resetForNewSubmission() {
   document.getElementById('intakeForm').reset();
+  document.getElementById('procurementType').value = '';
+  clearIntlDevFields();
+  updateProcurementFields();
+  saveFormSettings();
   naicsCodes = [];
   renderNaics();
   selectedFile = null;
