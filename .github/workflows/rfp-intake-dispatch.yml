@@ -7,12 +7,16 @@
 #   company       — submitting company name
 #   contact       — contact person name
 #   email         — contact email
+#   procurementType — procurement type slug (us-federal, intl-dev, other)
 #   r2Key         — R2 object key for the PDF e.g. rfp-pdfs/sub_123/filename.pdf
 #   rfpFileName   — original PDF filename
 #   submittedAt   — ISO timestamp
 #   naics         — comma-separated NAICS codes
 #   certifications — comma-separated certifications/socioeconomic statuses
 #   contractVehicles — comma-separated contract vehicles
+#   donor         — donor/funder name for international development submissions
+#   sector        — sector/thematic area for international development submissions
+#   managingContractor — managing contractor for international development submissions
 #   pastPerformance — short past performance summary
 #   teamSize      — team size band from intake form
 #   keyPersonnel  — key personnel summary from intake form
@@ -38,6 +42,10 @@ on:
         description: "Contact email"
         required: true
         type: string
+      procurementType:
+        description: "Procurement type (us-federal, intl-dev, other)"
+        required: false
+        type: string
       r2Key:
         description: "R2 object key, e.g. rfp-pdfs/sub_123/filename.pdf"
         required: true
@@ -60,6 +68,18 @@ on:
         type: string
       contractVehicles:
         description: "Contract vehicles from intake"
+        required: false
+        type: string
+      donor:
+        description: "Donor/funder for international development"
+        required: false
+        type: string
+      sector:
+        description: "Sector or thematic area for international development"
+        required: false
+        type: string
+      managingContractor:
+        description: "Managing contractor for international development"
         required: false
         type: string
       pastPerformance:
@@ -196,11 +216,15 @@ jobs:
           COMPANY:        ${{ github.event.client_payload.company || github.event.inputs.company }}
           CONTACT:        ${{ github.event.client_payload.contact || github.event.inputs.contact }}
           EMAIL:          ${{ github.event.client_payload.email || github.event.inputs.email }}
+          PROCUREMENT_TYPE: ${{ github.event.client_payload.procurementType || github.event.inputs.procurementType }}
           RFP_FILENAME:   ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }}
           SUBMITTED_AT:   ${{ github.event.client_payload.submittedAt || github.event.inputs.submittedAt }}
           NAICS:          ${{ github.event.client_payload.naics || github.event.inputs.naics }}
           CERTIFICATIONS: ${{ github.event.client_payload.certifications || github.event.inputs.certifications }}
           CONTRACT_VEHICLES: ${{ github.event.client_payload.contractVehicles || github.event.inputs.contractVehicles }}
+          DONOR:          ${{ github.event.client_payload.donor || github.event.inputs.donor }}
+          SECTOR:         ${{ github.event.client_payload.sector || github.event.inputs.sector }}
+          MANAGING_CONTRACTOR: ${{ github.event.client_payload.managingContractor || github.event.inputs.managingContractor }}
           PAST_PERFORMANCE: ${{ github.event.client_payload.pastPerformance || github.event.inputs.pastPerformance }}
           TEAM_SIZE:      ${{ github.event.client_payload.teamSize || github.event.inputs.teamSize }}
           KEY_PERSONNEL:  ${{ github.event.client_payload.keyPersonnel || github.event.inputs.keyPersonnel }}
@@ -218,11 +242,15 @@ jobs:
             "company":       "${COMPANY}",
             "contact":       "${CONTACT}",
             "email":         "${EMAIL}",
+            "procurementType": "${PROCUREMENT_TYPE}",
             "rfpFileName":   "${RFP_FILENAME}",
             "submittedAt":   "${SUBMITTED_AT}",
             "naics":         "${NAICS}",
             "certifications": "${CERTIFICATIONS}",
             "contractVehicles": "${CONTRACT_VEHICLES}",
+            "donor":         "${DONOR}",
+            "sector":        "${SECTOR}",
+            "managingContractor": "${MANAGING_CONTRACTOR}",
             "pastPerformance": "${PAST_PERFORMANCE}",
             "teamSize":      "${TEAM_SIZE}",
             "keyPersonnel":  "${KEY_PERSONNEL}",
@@ -235,12 +263,47 @@ jobs:
 
           COMPANY_PROFILE_PATH="${DEST_DIR}/company-profile.md"
           CAPABILITY_BODY="${CAPABILITY_TEXT}"
+          DONOR_VALUE="${DONOR}"
+          SECTOR_VALUE="${SECTOR}"
+          MANAGING_CONTRACTOR_VALUE="${MANAGING_CONTRACTOR}"
+
           if [ -z "${CAPABILITY_BODY}" ]; then
             CAPABILITY_BODY="Not provided"
           fi
+          if [ -z "${DONOR_VALUE}" ]; then
+            DONOR_VALUE="Not provided"
+          fi
+          if [ -z "${SECTOR_VALUE}" ]; then
+            SECTOR_VALUE="Not provided"
+          fi
+          if [ -z "${MANAGING_CONTRACTOR_VALUE}" ]; then
+            MANAGING_CONTRACTOR_VALUE="Not provided"
+          fi
+
+          PROCUREMENT_TYPE_SLUG="${PROCUREMENT_TYPE}"
+          if [ -z "${PROCUREMENT_TYPE_SLUG}" ]; then
+            PROCUREMENT_TYPE_SLUG="us-federal"
+          fi
+
+          case "${PROCUREMENT_TYPE_SLUG}" in
+            us-federal)
+              PROCUREMENT_TYPE_LABEL="US Federal RFP (FAR-based)"
+              ;;
+            intl-dev)
+              PROCUREMENT_TYPE_LABEL="International Development"
+              ;;
+            other)
+              PROCUREMENT_TYPE_LABEL="Other / Commercial"
+              ;;
+            *)
+              PROCUREMENT_TYPE_LABEL="US Federal RFP (FAR-based)"
+              PROCUREMENT_TYPE_SLUG="us-federal"
+              ;;
+          esac
 
           cat > "${COMPANY_PROFILE_PATH}" << EOF
           # Submitted Company Profile
+          **Procurement Type:** ${PROCUREMENT_TYPE_LABEL}
 
           ## Company Name
           ${COMPANY}
@@ -251,6 +314,23 @@ jobs:
           ## Contact Email
           ${EMAIL}
 
+          EOF
+
+          if [ "${PROCUREMENT_TYPE_SLUG}" = "intl-dev" ]; then
+            cat >> "${COMPANY_PROFILE_PATH}" << EOF
+
+          ## Donor / Funder
+          ${DONOR_VALUE}
+
+          ## Sector / Thematic Area
+          ${SECTOR_VALUE}
+
+          ## Managing Contractor
+          ${MANAGING_CONTRACTOR_VALUE}
+          EOF
+          else
+            cat >> "${COMPANY_PROFILE_PATH}" << EOF
+
           ## NAICS Codes
           ${NAICS}
 
@@ -259,6 +339,10 @@ jobs:
 
           ## Contract Vehicles
           ${CONTRACT_VEHICLES}
+          EOF
+          fi
+
+          cat >> "${COMPANY_PROFILE_PATH}" << EOF
 
           ## Past Performance Summary
           ${PAST_PERFORMANCE}

@@ -313,6 +313,7 @@ jobs:
             local request_file="$3"
             local raw_response_file="$4"
             local status_file="$5"
+            local procurement_type="${6:-us-federal}"
             local incomprehensible_marker="[[INCOMPREHENSIBLE_SOURCE]]"
 
             cp "$in_file" "$out_file"
@@ -332,6 +333,10 @@ jobs:
             fi
 
             local prompt_file="prompts/claude-cleanup.md"
+            if [[ "$procurement_type" == "intl-dev" ]]; then
+              prompt_file="prompts/06-intl-dev-analysis.md"
+            fi
+
             local system_prompt
             if [[ -f "$prompt_file" ]]; then
               system_prompt="$(cat "$prompt_file")"
@@ -344,7 +349,11 @@ jobs:
             endpoint="${GITHUB_MODELS_ENDPOINT:-https://models.github.ai/inference/chat/completions}"
 
             local user_payload
-            user_payload="Clean and normalize this markdown. Fix mid-sentence breaks and hard wraps. Preserve headings, lists, and source intent exactly. Return markdown only. If the source is too corrupted to safely repair without guessing, return exactly [[INCOMPREHENSIBLE_SOURCE]] and nothing else.\n\n--- BEGIN MARKDOWN ---\n$(cat \"$in_file\")\n--- END MARKDOWN ---"
+            if [[ "$procurement_type" == "intl-dev" ]]; then
+              user_payload="Generate a complete International Development BD Opportunity Assessment from this markdown. Follow the system prompt section order exactly. Use donor-specific terminology and cross-reference the Submitted Company Profile throughout. Return markdown only.\n\n--- BEGIN MARKDOWN ---\n$(cat \"$in_file\")\n--- END MARKDOWN ---"
+            else
+              user_payload="Clean and normalize this markdown. Fix mid-sentence breaks and hard wraps. Preserve headings, lists, and source intent exactly. Return markdown only. If the source is too corrupted to safely repair without guessing, return exactly [[INCOMPREHENSIBLE_SOURCE]] and nothing else.\n\n--- BEGIN MARKDOWN ---\n$(cat \"$in_file\")\n--- END MARKDOWN ---"
+            fi
 
             jq -n \
               --arg model "$model" \
@@ -390,6 +399,26 @@ jobs:
             return 0
           }
 
+          detect_procurement_type() {
+            local in_file="$1"
+            local raw=""
+
+            if [[ ! -f "$in_file" ]]; then
+              echo "us-federal"
+              return 0
+            fi
+
+            raw="$(head -n 5 "$in_file" | sed -n 's/^<!-- procurement-type: \(.*\) -->$/\1/p' | head -n 1 | tr '[:upper:]' '[:lower:]' | xargs)"
+            case "$raw" in
+              us-federal|intl-dev|other)
+                echo "$raw"
+                ;;
+              *)
+                echo "us-federal"
+                ;;
+            esac
+          }
+
           write_final_with_last_run() {
             local in_file="$1"
             local out_file="$2"
@@ -418,6 +447,7 @@ jobs:
             cp "$target" "$case_dir/original.md"
             LAST_SUCCESS="$case_dir/original.md"
             echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
+            procurement_type="$(detect_procurement_type "$case_dir/original.md")"
 
             retry_limit="${MAX_REFINEMENT_RETRIES:-1}"
             if ! [[ "$retry_limit" =~ ^[0-9]+$ ]]; then
@@ -460,7 +490,8 @@ jobs:
                 "$stage_d_md" \
                 "$attempt_dir/stage-d/request.json" \
                 "$attempt_dir/stage-d/raw-response.json" \
-                "$attempt_dir/stage-d/status.txt"
+                "$attempt_dir/stage-d/status.txt" \
+                "$procurement_type"
               LAST_SUCCESS="$stage_d_md"
               echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
 
@@ -504,6 +535,7 @@ jobs:
               echo "- mode: local-transform"
               echo "- max_attempts: $max_attempts"
               echo "- final_attempt: $attempt"
+              echo "- procurement_type: $procurement_type"
               echo "- stage_a_output: $stage_a_md"
               echo "- stage_b_output: $stage_b_md"
               echo "- stage_c_output: $stage_c_md"

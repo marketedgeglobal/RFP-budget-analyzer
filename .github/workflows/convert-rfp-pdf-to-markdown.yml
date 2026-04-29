@@ -144,6 +144,119 @@ jobs:
             fi
           done < .tmp/deleted_pdfs.txt
 
+      - name: Append company profile and procurement metadata
+        if: steps.diff.outputs.changed_count != '0'
+        run: |
+          set -euo pipefail
+
+          normalize_procurement_type() {
+            local raw="$1"
+            case "$raw" in
+              us-federal|intl-dev|other)
+                echo "$raw"
+                ;;
+              *)
+                echo "us-federal"
+                ;;
+            esac
+          }
+
+          ensure_procurement_comment() {
+            local md_file="$1"
+            local procurement_type="$2"
+            local comment_line="<!-- procurement-type: ${procurement_type} -->"
+
+            if [[ ! -f "$md_file" ]]; then
+              return 0
+            fi
+
+            if head -n 1 "$md_file" | grep -Eq '^<!-- procurement-type: .+ -->$'; then
+              {
+                echo "$comment_line"
+                tail -n +2 "$md_file"
+              } > "${md_file}.tmp"
+              mv "${md_file}.tmp" "$md_file"
+            else
+              {
+                echo "$comment_line"
+                cat "$md_file"
+              } > "${md_file}.tmp"
+              mv "${md_file}.tmp" "$md_file"
+            fi
+          }
+
+          append_company_profile_once() {
+            local md_file="$1"
+            local profile_file="$2"
+
+            if [[ ! -f "$md_file" || ! -f "$profile_file" ]]; then
+              return 0
+            fi
+
+            # Keep exactly one appended submitted-company-profile block.
+            awk '
+              BEGIN { skip = 0 }
+              {
+                if (skip == 0 && $0 ~ /^## Submitted Company Profile[[:space:]]*$/) {
+                  skip = 1
+                  next
+                }
+                if (skip == 1) {
+                  next
+                }
+                print
+              }
+            ' "$md_file" > "${md_file}.tmp"
+
+            {
+              cat "${md_file}.tmp"
+              echo ""
+              echo ""
+              awk 'NR == 1 { sub(/^# /, "## "); print; next } { print }' "$profile_file"
+            } > "$md_file"
+
+            rm -f "${md_file}.tmp"
+          }
+
+          while IFS= read -r pdf_path; do
+            [[ -z "$pdf_path" ]] && continue
+
+            if [[ -f "$pdf_path" ]]; then
+              rel="${pdf_path#rfp-pdfs/}"
+              subdir="$(dirname "$rel")"
+              md="rfp-markdown/generated/${rel%.*}.md"
+              metadata="rfp-pdfs/${subdir}/submission-metadata.json"
+              profile="rfp-pdfs/${subdir}/company-profile.md"
+
+              procurement_type="us-federal"
+              if [[ -f "$metadata" ]]; then
+                procurement_type="$(jq -r '.procurementType // "us-federal"' "$metadata" 2>/dev/null || echo "us-federal")"
+              fi
+              procurement_type="$(normalize_procurement_type "$procurement_type")"
+
+              ensure_procurement_comment "$md" "$procurement_type"
+              append_company_profile_once "$md" "$profile"
+            elif [[ -d "$pdf_path" ]]; then
+              while IFS= read -r nested_pdf; do
+                [[ -z "$nested_pdf" ]] && continue
+                rel="${nested_pdf#rfp-pdfs/}"
+                subdir="$(dirname "$rel")"
+                md="rfp-markdown/generated/${rel%.*}.md"
+                metadata="rfp-pdfs/${subdir}/submission-metadata.json"
+                profile="rfp-pdfs/${subdir}/company-profile.md"
+
+                procurement_type="us-federal"
+                if [[ -f "$metadata" ]]; then
+                  procurement_type="$(jq -r '.procurementType // "us-federal"' "$metadata" 2>/dev/null || echo "us-federal")"
+                fi
+                procurement_type="$(normalize_procurement_type "$procurement_type")"
+
+                ensure_procurement_comment "$md" "$procurement_type"
+                append_company_profile_once "$md" "$profile"
+              done < <(find "$pdf_path" -type f -iname '*.pdf' | sort)
+            fi
+          done < .tmp/changed_pdfs.txt
+
       - name: Commit conversion changes
         run: |
           set -euo pipefail
