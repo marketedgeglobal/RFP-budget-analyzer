@@ -10,6 +10,12 @@
 #   r2Key         — R2 object key for the PDF e.g. rfp-pdfs/sub_123/filename.pdf
 #   rfpFileName   — original PDF filename
 #   submittedAt   — ISO timestamp
+#   naics         — comma-separated NAICS codes
+#   certifications — comma-separated certifications/socioeconomic statuses
+#   contractVehicles — comma-separated contract vehicles
+#   pastPerformance — short past performance summary
+#   teamSize      — team size band from intake form
+#   keyPersonnel  — key personnel summary from intake form
 
 name: RFP Intake Dispatch
 
@@ -43,6 +49,30 @@ on:
       submittedAt:
         description: "ISO timestamp"
         required: true
+        type: string
+      naics:
+        description: "NAICS codes from intake"
+        required: false
+        type: string
+      certifications:
+        description: "Certifications from intake"
+        required: false
+        type: string
+      contractVehicles:
+        description: "Contract vehicles from intake"
+        required: false
+        type: string
+      pastPerformance:
+        description: "Past performance summary from intake"
+        required: false
+        type: string
+      teamSize:
+        description: "Team size band from intake"
+        required: false
+        type: string
+      keyPersonnel:
+        description: "Key personnel summary from intake"
+        required: false
         type: string
   repository_dispatch:
     types: [rfp-submission]
@@ -150,6 +180,12 @@ jobs:
           EMAIL:          ${{ github.event.client_payload.email || github.event.inputs.email }}
           RFP_FILENAME:   ${{ github.event.client_payload.rfpFileName || github.event.inputs.rfpFileName }}
           SUBMITTED_AT:   ${{ github.event.client_payload.submittedAt || github.event.inputs.submittedAt }}
+          NAICS:          ${{ github.event.client_payload.naics || github.event.inputs.naics }}
+          CERTIFICATIONS: ${{ github.event.client_payload.certifications || github.event.inputs.certifications }}
+          CONTRACT_VEHICLES: ${{ github.event.client_payload.contractVehicles || github.event.inputs.contractVehicles }}
+          PAST_PERFORMANCE: ${{ github.event.client_payload.pastPerformance || github.event.inputs.pastPerformance }}
+          TEAM_SIZE:      ${{ github.event.client_payload.teamSize || github.event.inputs.teamSize }}
+          KEY_PERSONNEL:  ${{ github.event.client_payload.keyPersonnel || github.event.inputs.keyPersonnel }}
         run: |
           DEST_DIR="rfp-pdfs/${SUBMISSION_ID}"
           METADATA_PATH="${DEST_DIR}/submission-metadata.json"
@@ -162,6 +198,12 @@ jobs:
             "email":         "${EMAIL}",
             "rfpFileName":   "${RFP_FILENAME}",
             "submittedAt":   "${SUBMITTED_AT}",
+            "naics":         "${NAICS}",
+            "certifications": "${CERTIFICATIONS}",
+            "contractVehicles": "${CONTRACT_VEHICLES}",
+            "pastPerformance": "${PAST_PERFORMANCE}",
+            "teamSize":      "${TEAM_SIZE}",
+            "keyPersonnel":  "${KEY_PERSONNEL}",
             "workflowRunId": "${GITHUB_RUN_ID}"
           }
           EOF

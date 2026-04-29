@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime, timezone
+import json
 import os
 import re
 from difflib import SequenceMatcher
@@ -1077,11 +1078,141 @@ def _collect_issue_lines(issues_report: str) -> list[str]:
     return deduped
 
 
-def _build_scorecard(analysis_report: str, issues_report: str) -> tuple[str, str, list[str], list[dict[str, str]]]:
+def _extract_company_profile_section(markdown_text: str) -> str:
+    if not markdown_text.strip():
+        return ""
+
+    lines = markdown_text.splitlines()
+    start = -1
+    for idx, raw in enumerate(lines):
+        line = raw.strip().lower()
+        if line.startswith("## ") and "submitted company profile" in line:
+            start = idx + 1
+            break
+
+    if start == -1:
+        return ""
+
+    collected: list[str] = []
+    for raw in lines[start:]:
+        stripped = raw.strip()
+        if stripped.startswith("## "):
+            break
+        collected.append(raw)
+    return "\n".join(collected).strip()
+
+
+def _read_submission_metadata_for_source(source_name: str) -> dict[str, str]:
+    normalized = source_name.replace("\\", "/")
+    match = re.search(r"sub_\d+", normalized)
+    if not match:
+        return {}
+
+    metadata_path = Path("rfp-pdfs") / match.group(0) / "submission-metadata.json"
+    if not metadata_path.exists():
+        return {}
+
+    try:
+        payload = json.loads(metadata_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+    if not isinstance(payload, dict):
+        return {}
+
+    return {str(k): str(v) for k, v in payload.items() if isinstance(v, (str, int, float, bool))}
+
+
+def _estimate_key_personnel_count(text: str) -> int:
+    normalized = _normalize_bullet_text(text)
+    if not normalized:
+        return 0
+
+    lowered = normalized.lower()
+    numeric_roles = re.findall(
+        r"\b(\d{1,2})\s*(?:x\s*)?(?:pm|project\s+manager|ai\s+lead|lead|engineer|developer|architect|analyst|specialist|manager)\b",
+        lowered,
+    )
+    if numeric_roles:
+        return sum(int(value) for value in numeric_roles)
+
+    # Fallback list split when explicit counts are not provided.
+    parts = [
+        item.strip()
+        for item in re.split(r",|;|\band\b|\n", normalized, flags=re.IGNORECASE)
+        if item.strip()
+    ]
+    if len(parts) > 1:
+        return len(parts)
+    return 1 if normalized else 0
+
+
+def _derive_company_capacity_signals(markdown_text: str, source_name: str) -> dict[str, str | int]:
+    profile_section = _extract_company_profile_section(markdown_text)
+    metadata = _read_submission_metadata_for_source(source_name)
+
+    team_size = ""
+    key_personnel = ""
+
+    team_size_patterns = (
+        r"team\s*size\s*[:\-]\s*([^\n]+)",
+        r"employee\s*count\s*[:\-]\s*([^\n]+)",
+    )
+    for pattern in team_size_patterns:
+        match = re.search(pattern, profile_section, flags=re.IGNORECASE)
+        if match:
+            team_size = _normalize_bullet_text(match.group(1))
+            break
+
+    key_personnel_patterns = (
+        r"key\s*personnel\s*[:\-]\s*([^\n]+)",
+        r"core\s*team\s*[:\-]\s*([^\n]+)",
+    )
+    for pattern in key_personnel_patterns:
+        match = re.search(pattern, profile_section, flags=re.IGNORECASE)
+        if match:
+            key_personnel = _normalize_bullet_text(match.group(1))
+            break
+
+    team_size = team_size or metadata.get("teamSize", "") or metadata.get("team_size", "")
+    key_personnel = key_personnel or metadata.get("keyPersonnel", "") or metadata.get("key_personnel", "")
+
+    personnel_count = _estimate_key_personnel_count(key_personnel) if key_personnel else 0
+
+    return {
+        "team_size": team_size,
+        "key_personnel": key_personnel,
+        "personnel_count": personnel_count,
+    }
+
+
+def _team_capacity_cap_from_profile(signals: dict[str, str | int]) -> tuple[int | None, str | None]:
+    team_size = str(signals.get("team_size", "")).lower()
+    personnel_count = int(signals.get("personnel_count", 0) or 0)
+
+    if personnel_count > 0 and personnel_count <= 2:
+        return 35, "intake profile lists a very lean key team (2 people or fewer), which is unlikely to sustain full proposal and delivery load"
+    if personnel_count in (3, 4):
+        return 50, "intake profile lists a small key team (3-4 people), which raises execution bandwidth risk"
+
+    if re.search(r"\b(1\s*[-to]{0,3}\s*5|2\s*[-to]{0,3}\s*10|small)\b", team_size):
+        return 50, "intake team-size band indicates a small organization relative to likely staffing demands"
+    if re.search(r"\b(11\s*[-to]{0,3}\s*50|51\s*[-to]{0,3}\s*100)\b", team_size):
+        return 65, "intake team-size band indicates moderate capacity with potential surge limits"
+
+    return None, None
+
+
+def _build_scorecard(
+    analysis_report: str,
+    issues_report: str,
+    company_capacity_signals: dict[str, str | int] | None = None,
+) -> tuple[str, str, list[str], list[dict[str, str]]]:
     core_analysis = _strip_reference_sections(analysis_report)
     full_text = f"{core_analysis}\n{issues_report}"
     sentences = _extract_sentences(full_text)
     score_rows: list[dict[str, str]] = []
+    capacity_signals = company_capacity_signals or {}
 
     for dimension in BD_SCORE_DIMENSIONS:
         dimension_name = str(dimension["name"])
@@ -1111,6 +1242,16 @@ def _build_scorecard(analysis_report: str, issues_report: str) -> tuple[str, str
             f"Signals found: {positive_hits} positive and {negative_hits} gap/risk indicators "
             f"for {dimension_name.lower()}."
         )
+
+        if dimension_name == "Team Capacity":
+            cap, reason = _team_capacity_cap_from_profile(capacity_signals)
+            if cap is not None and score > cap:
+                score = cap
+                weighted_score = round(score * (weight / 100), 1)
+                rationale += f" Adjusted using intake profile: {reason}."
+                confidence = "HIGH"
+            elif capacity_signals.get("team_size") or capacity_signals.get("key_personnel"):
+                rationale += " Intake profile reviewed: no automatic capacity cap triggered."
 
         score_rows.append(
             {
@@ -1286,6 +1427,7 @@ def _analyze_markdown(
     config: PipelineConfig,
     assets_context: str = "",
     asset_statuses: list[dict[str, str]] | None = None,
+    source_name: str | None = None,
 ) -> dict:
     chunks = chunk_markdown(markdown, config.chunk_size_chars, config.overlap_chars)
     agents = [ExtractorAgent(), ReviewerAgent(), AnalystAgent(), LegalRiskAgent(), SynthesizerAgent()]
@@ -1379,7 +1521,13 @@ def _analyze_markdown(
         asset_statuses=statuses,
     )
     issues_report = "\n".join(issues_lines).strip() + "\n"
-    scorecard, overall_rating, _not_found_categories, score_rows = _build_scorecard(report, issues_report)
+    source_hint = source_name or report_title
+    capacity_signals = _derive_company_capacity_signals(markdown, source_hint)
+    scorecard, overall_rating, _not_found_categories, score_rows = _build_scorecard(
+        report,
+        issues_report,
+        company_capacity_signals=capacity_signals,
+    )
     executive_summary = _build_executive_summary(
         report_title,
         report,
@@ -1408,7 +1556,7 @@ def run_pipeline(pdf_path: Path, config: PipelineConfig | None = None) -> dict:
     md_path = cfg.output_dir / f"{pdf_path.stem}.md"
     md_path.write_text(markdown, encoding="utf-8")
 
-    analysis = _analyze_markdown(markdown, pdf_path.name, cfg)
+    analysis = _analyze_markdown(markdown, pdf_path.name, cfg, source_name=pdf_path.as_posix())
     report_path = cfg.output_dir / f"{pdf_path.stem}.analysis.md"
     issues_path = cfg.output_dir / f"{pdf_path.stem}.issues.md"
     scorecard_path = cfg.output_dir / f"{pdf_path.stem}.scorecard.md"
@@ -1467,6 +1615,7 @@ def run_markdown_analysis(
         cfg,
         assets_context=assets_context,
         asset_statuses=asset_statuses,
+        source_name=markdown_path.as_posix(),
     )
     report_path = cfg.output_dir / f"{markdown_path.stem}.analysis.md"
     issues_path = cfg.output_dir / f"{markdown_path.stem}.issues.md"

@@ -12,6 +12,20 @@ def _make_scorecard(analysis_report: str, issues: list[str]) -> str:
     return scorecard
 
 
+def _make_scorecard_with_capacity(analysis_report: str, issues: list[str], team_size: str, key_personnel: str) -> str:
+    issues_report = "# BD Issues Summary: demo\n\nPotential BD issues:\n" + "\n".join(f"- {item}" for item in issues)
+    scorecard, _recommendation, _unused, _rows = _build_scorecard(
+        analysis_report,
+        issues_report,
+        company_capacity_signals={
+            "team_size": team_size,
+            "key_personnel": key_personnel,
+            "personnel_count": 2,
+        },
+    )
+    return scorecard
+
+
 def test_recommendation_strong_pursue_when_evidence_is_rich() -> None:
     analysis_report = "\n".join(
         [
@@ -56,3 +70,21 @@ def test_top_issue_order_prioritizes_bid_impact() -> None:
     top_issue_line = next(line for line in lines if line.startswith("1. ["))
 
     assert "not receive an award" in top_issue_line.lower()
+
+
+def test_team_capacity_is_capped_for_two_person_key_team() -> None:
+    analysis_report = "Key personnel resume labor category FTE hours transition mobilization clearance staffing."
+    issues = ["Transition and key personnel requirements create schedule risk."]
+
+    scorecard = _make_scorecard_with_capacity(
+        analysis_report,
+        issues,
+        team_size="1-5",
+        key_personnel="1 PM and 1 AI lead",
+    )
+
+    team_capacity_row = next(
+        line for line in scorecard.splitlines() if line.startswith("| Team Capacity |")
+    )
+    assert "35/100" in team_capacity_row
+    assert "Adjusted using intake profile" in scorecard

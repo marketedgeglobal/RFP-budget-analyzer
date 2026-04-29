@@ -2,13 +2,13 @@
 - Opportunity: RFP REMS_11-final
 - Analysis run date: 2026-04-29
 - Recommendation: Conditional Pursue
-- Overall BD fit score: 71.8/100
+- Overall BD fit score: 66.8/100
 
 ## Strongest Alignment
-- Team Capacity: 85/100. Signals found: 8 positive and 0 gap/risk indicators for team capacity.
+- Past Performance Relevance: 75/100. Signals found: 6 positive and 1 gap/risk indicators for past performance relevance.
 
 ## Critical Gap
-- Technical Capability: 61/100. Signals found: 2 positive and 0 gap/risk indicators for technical capability.
+- Team Capacity: 35/100. Signals found: 8 positive and 0 gap/risk indicators for team capacity. Adjusted using intake profile: intake profile lists a very lean key team (2 people or fewer), which is unlikely to sustain full proposal and delivery load.
 
 ## Top BD Risks
 - [HIGH] (3) Failure to provide information in the format requested may be found unacceptable and may be rejected without further consideration if the Contracting
@@ -18,5 +18,5 @@
 ## Immediate Capture Actions
 - Confirm bid/no-bid posture with leadership using the weighted fit score and top BD risks.
 - Align proposal strategy to Section M evaluation emphasis and resource the highest-risk volume first.
-- Close the largest current gap in Technical Capability before color-team kickoff.
+- Close the largest current gap in Team Capacity before color-team kickoff.
 - Run a price-to-win sensitivity pass to ensure your labor mix can survive cost realism scrutiny.
