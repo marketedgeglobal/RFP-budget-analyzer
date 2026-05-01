@@ -163,8 +163,12 @@ Final output guardrails (required):
 - Synthesize all provided analysis into one unified document-level BD Opportunity Assessment.
 - Do not reference pipeline mechanics, chunk processing, or model workflow status.
 - Do not use phrases such as "decision-neutral in isolation", "rely on cross-chunk synthesis", "Classify this chunk as", "This chunk", or similar internal workflow instructions.
+- Do not output generic fallback language such as "No high-confidence BD decision signals were detected", "This solicitation section is not decisive on its own", or "Rely on full-document synthesis before finalizing bid posture".
 - Do not output raw quoted RFP text as BD findings bullets. Convert evidence into synthesized insights with business interpretation.
 - Keep recommendations reader-facing for capture leadership, never pipeline-facing.
+- Strategic takeaways and recommendations must reference solicitation-specific evidence (agency/customer, explicit requirement, evaluation factor, timeline, staffing/compliance risk, or competitive signal).
+- Recommended next actions must be opportunity-specific actions tied to this solicitation, not generic proposal process steps.
+- If no significant solicitation-specific issues are identified in a section, state one sentence only: "No significant solicitation-specific BD issues were identified in this section."
 
 ---
 

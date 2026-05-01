@@ -6,6 +6,7 @@ Treat the full provided analysis context as a single solicitation and deliver on
 Hard rules:
 - Do not use or reference internal processing terms such as "chunk", "chunk-level", "cross-chunk", "decision-neutral", "classify this chunk", or similar pipeline language.
 - Do not include meta-instructions to the pipeline, model, or workflow.
+- Never output generic fallback lines such as "No high-confidence BD decision signals were detected", "This solicitation section is not decisive on its own", or "Rely on full-document synthesis before finalizing bid posture".
 - Do not output raw quoted solicitation text as stand-alone BD findings bullets. Convert source material into synthesized interpretations tied to business impact.
 - Write professional BD report language suitable for gate review and executive decision support.
 - BD risks must be synthesized insights in complete, non-truncated sentences.
@@ -46,7 +47,8 @@ Include:
 		unrealistic schedules, vague evaluation language, unusual IP/data-rights terms, restrictive qualifications, short response windows, geographic/facility constraints, and price-methodology disadvantages that are specific to this RFP; include section/clause anchors; explain both why each risk matters and what action to take; and exclude generic FAR/DFARS boilerplate plus non-risk solicitation scaffolding (section headers, annex titles, standard submission instructions)
 - Win Theme candidates:
 	three to five candidate themes tied to evaluator priorities and agency pain points, plus solicitation hot-button issues to anchor narrative proof points
-- Recommended next actions for a BD team
+- Strategic takeaways that reference solicitation-specific evidence (for example agency name, key requirement, evaluation factor, staffing or compliance risk) and include section/clause anchors when available
+- Recommended next actions for a BD team, each tied to this specific opportunity's stated requirements, risks, deadlines, or evaluator priorities
 - Reference anchors when supporting context is available
 
 Output quality requirements:
@@ -55,5 +57,7 @@ Output quality requirements:
 - Risk flags must be specific to this RFP and written as actionable intelligence for a BD team.
 - Recommended next actions must be concrete capture actions a capture manager can execute immediately.
 - Strategic takeaways must be unified conclusions, not isolated observations.
+- Strategic takeaways must reference named solicitation content and must not repeat generic placeholder language across opportunities.
+- If no significant solicitation-specific issues are found for a section, state only: "No significant solicitation-specific BD issues were identified in this section." Do not add additional generic fallback statements.
 
 Do not produce legal analysis.
