@@ -303,7 +303,7 @@ jobs:
       - name: Run critique, refine, formatting, and Claude cleanup stages
         if: steps.prep.outputs.target_count != '0'
         env:
-          GITHUB_TOKEN: ${{ secrets.RFP_PIPELINE_PAT }}
+          GITHUB_TOKEN: ${{ github.token }}
           RUN_DIR: ${{ steps.prep.outputs.run_dir }}
         run: |
           set -euo pipefail
