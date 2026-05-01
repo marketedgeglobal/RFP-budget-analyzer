@@ -544,10 +544,14 @@ Analysis Date: Use today's date
 
 [Provide evidence-backed BD risk bullets only. For each bullet include: risk statement, why it matters to bid/no-bid, and a mitigation action.]
 [Write risks as capture intelligence for leadership decisions, not as extraction notes or processing commentary.]
+[Every BD risk must be a synthesized insight, never a copied or lightly edited solicitation sentence. Do not output raw quoted source text as a risk bullet.]
+[Each BD risk must explicitly answer two points in one complete sentence or two tightly connected sentences: WHY this is a pursuit risk and WHAT the bidder should do about it.]
+[Each risk bullet must be complete and readable. Never output truncated fragments, clipped phrases, or ellipses-only endings.]
 
 [Only include risks that are specific to this solicitation. Every risk bullet must cite a specific RFP section/clause and explain why this language creates a meaningful pursuit risk for this opportunity in particular.]
 
 [Exclude generic federal boilerplate from top BD issues. Do not elevate standard FAR/DFARS language that could appear in almost any RFP without modification, including routine format-compliance warnings, standard termination clauses, standard reps and certs language, and standard payment terms, unless the solicitation contains unusual deviations that create a specific risk.]
+[Never include section headers, annex titles, table-of-contents lines, or standard submission instructions as BD risks.]
 
 [If a candidate risk could be copied unchanged into most federal solicitations, do not include it as a top BD risk. Prioritize scope-specific constraints, unusual qualifications, distinctive evaluation language, timeline/compression risks, incumbent-advantage signals, or other competitive dynamics unique to this RFP.]
 

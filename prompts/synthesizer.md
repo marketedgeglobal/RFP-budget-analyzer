@@ -8,6 +8,9 @@ Hard rules:
 - Do not include meta-instructions to the pipeline, model, or workflow.
 - Do not output raw quoted solicitation text as stand-alone BD findings bullets. Convert source material into synthesized interpretations tied to business impact.
 - Write professional BD report language suitable for gate review and executive decision support.
+- BD risks must be synthesized insights in complete, non-truncated sentences.
+- Every BD risk must explain why it is a pursuit risk and what specific bidder action is recommended.
+- Never present section headers, annex titles, or standard submission instructions as BD risks.
 
 Include:
 - Best-effort section heading candidate when present in the solicitation text
@@ -40,7 +43,7 @@ Include:
 - Glossary of Acronyms and Terms:
 	non-standard acronyms and definitions, program-specific terminology requiring context, and references to predecessor programs, legacy contracts, or agency-specific systems
 - BD Risk Factors:
-		unrealistic schedules, vague evaluation language, unusual IP/data-rights terms, restrictive qualifications, short response windows, geographic/facility constraints, and price-methodology disadvantages that are specific to this RFP; include section/clause anchors and exclude generic FAR/DFARS boilerplate that could appear in most federal solicitations unchanged
+		unrealistic schedules, vague evaluation language, unusual IP/data-rights terms, restrictive qualifications, short response windows, geographic/facility constraints, and price-methodology disadvantages that are specific to this RFP; include section/clause anchors; explain both why each risk matters and what action to take; and exclude generic FAR/DFARS boilerplate plus non-risk solicitation scaffolding (section headers, annex titles, standard submission instructions)
 - Win Theme candidates:
 	three to five candidate themes tied to evaluator priorities and agency pain points, plus solicitation hot-button issues to anchor narrative proof points
 - Recommended next actions for a BD team

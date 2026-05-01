@@ -23,6 +23,9 @@ Output requirements:
 - Produce one unified document-level assessment suitable for BD gate review.
 - Use clear, professional language that is ready to brief capture leadership.
 - Do not mention internal pipeline mechanics or model/workflow instructions.
+- BD risks must be synthesized insights, never copied solicitation text, section headers, annex titles, or standard submission-instruction boilerplate.
+- Every BD risk must clearly state WHY it is a pursuit risk and WHAT action the bidder should take.
+- Risk text must be complete and actionable; do not output truncated fragments.
 
 Use this exact structure and section order:
 
@@ -77,13 +80,16 @@ Use this exact structure and section order:
 - Prior phases or predecessor projects referenced
 
 ## BD RISK FACTORS
-- Unrealistic timeline relative to scope complexity
-- Multi-stakeholder approval chains that slow delivery
-- Vague evaluation criteria reducing predictability
-- GEDSI or inclusion requirements that may be disqualifying if not met
-- Geographic or language requirements limiting eligible firms
-- Budget not disclosed pricing blind spots
-- Short proposal response window relative to complexity
+- Provide only solicitation-specific, synthesized risk statements with a section/reference anchor for each risk.
+- Do not copy or paraphrase boilerplate headings or standard instructions into risks.
+- For each risk, include both: why this affects bid competitiveness or delivery feasibility, and the recommended bidder action.
+- Address, when present, these international-development risk themes:
+	- GEDSI mandatory requirements and whether the submitted company profile demonstrates credible alignment
+	- Multi-stakeholder approval chains and schedule implications
+	- Budget not disclosed and resulting pricing blind spots
+	- Person day requirements versus available company/key-personnel capacity
+	- Donor compliance obligations and non-standard policy burdens
+	- In-country presence and language requirements that affect eligibility or delivery risk
 
 ## DONOR COMPLIANCE REQUIREMENTS
 - Identify the primary donor and their specific compliance framework

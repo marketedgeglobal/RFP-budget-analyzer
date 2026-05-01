@@ -32,6 +32,6 @@ Prioritize extraction for:
 - Glossary of acronyms and terms:
 	non-standard acronyms and definitions; program-specific terms requiring context; predecessor program/legacy contract/agency-system references that affect interpretation
 - BD risk factors and win-theme inputs:
-		timeline realism, evaluation clarity, IP/data-rights concerns, restrictive qualifications, geographic constraints, price-evaluation risks, and hot-button agency concerns suitable for theme development; include section/clause references for each extracted risk and exclude generic FAR/DFARS boilerplate that is not unique to this RFP (routine format compliance warnings, standard termination terms, standard reps/certs language, standard payment terms)
+		timeline realism, evaluation clarity, IP/data-rights concerns, restrictive qualifications, geographic constraints, price-evaluation risks, and hot-button agency concerns suitable for theme development; include section/clause references for each extracted risk; express each risk as a synthesized insight (not copied solicitation text) with why-it-matters and recommended bidder action; and exclude generic FAR/DFARS boilerplate plus non-risk solicitation scaffolding (section headers, annex titles, and standard submission instructions)
 
 Do not provide legal analysis.
