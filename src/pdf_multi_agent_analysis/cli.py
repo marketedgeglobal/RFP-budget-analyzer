@@ -1,9 +1,11 @@
 import argparse
+import json
 from pathlib import Path
 
 from .config import PipelineConfig
 from .converter import pdf_to_markdown
 from .pipeline import run_markdown_analysis, run_pipeline
+from .stage5_capture_brief import generate_capture_brief
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -45,6 +47,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Maximum number of pages to OCR per PDF asset",
     )
 
+    capture_brief = sub.add_parser(
+        "generate-capture-brief",
+        help="Generate Stage 5 capture brief for a final markdown file",
+    )
+    capture_brief.add_argument("markdown", type=Path, help="Path to a *-final.md source file")
+    capture_brief.add_argument("--out", type=Path, default=None, help="Optional explicit output path")
+    capture_brief.add_argument(
+        "--metadata",
+        type=Path,
+        default=None,
+        help="Optional explicit submission metadata JSON path",
+    )
+
     return parser
 
 
@@ -77,6 +92,25 @@ def main() -> int:
         for warning in result.get("asset_warnings", []):
             print(f"WARNING: {warning}")
         return 0
+
+    if args.command == "generate-capture-brief":
+        result = generate_capture_brief(
+            markdown_path=args.markdown,
+            out_path=args.out,
+            metadata_path=args.metadata,
+        )
+        print(f"Wrote capture brief: {result.capture_brief_path}")
+        print(f"Wrote validation: {result.validation_path}")
+        print(f"Wrote status: {result.status_path}")
+        print(json.dumps({
+            "success": result.success,
+            "procurementType": result.procurement_type,
+            "captureBriefPath": result.capture_brief_path.as_posix(),
+            "validationPath": result.validation_path.as_posix(),
+            "statusPath": result.status_path.as_posix(),
+            "missingHeadings": result.missing_headings,
+        }))
+        return 0 if result.success else 1
 
     cfg = PipelineConfig(
         output_dir=args.out_dir,

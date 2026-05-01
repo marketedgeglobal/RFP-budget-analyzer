@@ -623,6 +623,9 @@ jobs:
                 --assets-dir assets \
                 --out-dir "$(dirname "$final_out")"
 
+              python -m pdf_multi_agent_analysis.cli generate-capture-brief \
+                "$final_out"
+
               LAST_SUCCESS="$final_out"
               echo "$LAST_SUCCESS" > "$RUN_DIR/last-success-artifact.txt"
               success=1
@@ -671,7 +674,10 @@ jobs:
                 "${final_md%-final.md}-final.analysis.md" \
                 "${final_md%-final.md}-final.issues.md" \
                 "${final_md%-final.md}-final.scorecard.md" \
-                "${final_md%-final.md}-final.executive-summary.md"
+                "${final_md%-final.md}-final.executive-summary.md" \
+                "${final_md%-final.md}-capture-brief.md" \
+                "${final_md%-final.md}-capture-brief.validation.json" \
+                "${final_md%-final.md}-capture-brief.status.json"
               echo "pruned generated set for missing source: $src"
             fi
           done < <(find rfp-markdown/generated -type f -name '*-final.md' | sort)
@@ -695,7 +701,8 @@ jobs:
               "-final.analysis.md" \
               "-final.issues.md" \
               "-final.scorecard.md" \
-              "-final.executive-summary.md"; do
+              "-final.executive-summary.md" \
+              "-capture-brief.md"; do
               src="${target_base}${suffix}"
               if [[ -f "$src" ]]; then
                 cp "$src" "$SNAPSHOT_DIR/"
